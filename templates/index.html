@@ -48,7 +48,7 @@
              shadowSize: [41, 41]
          });
          
-         var planes = {{ x }};
+         
          map = L.map("map").setView([{{ posizione[0]}}, {{posizione[1]}}], 13);
          mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
          L.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -56,20 +56,13 @@
              //maxZoom: 13,
          }).addTo(map);
 
+
+         var planes = {{x | safe}};
+         //planes = planes.replace(/\'/g,'"')
          for (var i = 0; i < planes.length; i++) {
-             marker = new L.marker([planes[i][1], planes[i][0]]).addTo(map).on('click', onClick);;
+             marker = new L.marker([planes[i][1], planes[i][0]]).on('click', onClick).bindPopup(planes[i][2]).addTo(map);
          }
 
-         //var marker = L.marker([{{posizione[0]}}, {{posizione[1]}}]).addTo(map);
-         
-         /*
-         L.Routing.control({
-             waypoints: [
-                 L.latLng({{posizione[0]}}, {{posizione[1]}}),
-                 L.latLng(45.5100491, 9.1865356)
-             ]
-         }).addTo(map);
-         */
 
          function onClick(e) {
             if (lastRoute != null) {

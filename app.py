@@ -106,15 +106,17 @@ def index():
     buffer = buffer.to_crs(epsg=3857)
 
     vacc = somm_vacc[somm_vacc.geometry.within(buffer.geometry.squeeze())]
-    coordiante = np.array(vacc[['lat','lng']])
+    coordiante = np.array(vacc[['lat','lng','denominazione_struttura']])
     #print(coordiante)
 
     result = ""
     for cord in coordiante:
-        result += "[" + str(cord[1]) + "," + str(cord[0]) + "],"
+        result += "[" + str(cord[1]) + "," + str(cord[0]) + ","  + "'"  + str(cord[2]) + "'" + "],"
 
 #la lunghezza di result - l'ultimo carattere che è la virgola che non mi serve più le quadre è per l'array muldidimansionale
     result = "[" + result[0:len(result) -1] + "]"
+
+    print(result)
 
 
  
