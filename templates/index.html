@@ -57,8 +57,9 @@
          }).addTo(map);
 
 
+         //bisogna dire che quello che si sta passando non bisogna toccarlo ma bisogna lasciarlo così com'è
          var planes = {{x | safe}};
-         //planes = planes.replace(/\'/g,'"')
+         
          for (var i = 0; i < planes.length; i++) {
              marker = new L.marker([planes[i][1], planes[i][0]]).on('click', onClick).bindPopup(planes[i][2]).addTo(map);
          }

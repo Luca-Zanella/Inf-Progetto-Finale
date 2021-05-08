@@ -32,6 +32,7 @@ conn = py.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';U
 @app.route("/")
 #sulla pagina /login si fa metodo get post per passare le informazioni da html a python, in questo caso bisogna usare il post
 @app.route('/login', methods =['GET', 'POST'])
+#TODO: andreamo a fare il salvataggio su sql di quando l'utente si lgga
 def login():
     #si inizializza un messaggio per poi andare a dire nell'if quando riuscito che il log è andato a buon fine
     msg = ''
@@ -81,23 +82,26 @@ def cookie():
 
 @app.route("/index",methods=["GET","POST"])
 def index():
-    #handle post request
-    somm_vacc = pd.read_csv("puntiSomministrazioneVaccini.csv")
+    #creazione della figura
     fig = Figure()
     ax = fig.add_subplot()
 
+    #richiesta della tabella a sql server
+    query_somm_vacc = 'SELECT * FROM dbo.puntiSomministrazioneVaccini'
+    somm_vacc = pd.read_sql_query(query_somm_vacc,conn) 
+
+    #richiesta del cookie creato in cookie.html
     coord = request.cookies.get('coord')
-    lat = coord.split(":")[0]
-    lon = coord.split(":")[1]
+    lat = float(coord.split(":")[0])
+    lon = float(coord.split(":")[1])
 
-
-    lat = float(lat)
-    lon = float(lon)
-
+    #posizione serve per passare le coordinate a js per fa uscire il marker verde che saremmo il device
     posizione = [lat,lon]
 
+    #creazione el punto dell'utente per calcolare i centri vaccinali in un raggio di 4 km
     punto_utente = Point([lat,lon][::-1])
     punto = geopandas.GeoSeries([punto_utente], crs='EPSG:4326').to_crs(epsg=3857)
+    #creazione del buffer
     buffer = punto.buffer(4000)
     somm_vacc = geopandas.GeoDataFrame(somm_vacc,geometry=geopandas.points_from_xy(somm_vacc["lng"],somm_vacc["lat"]))
     somm_vacc.crs = 'epsg:4326'
@@ -105,31 +109,29 @@ def index():
     somm_vacc = somm_vacc.to_crs(epsg=3857)
     buffer = buffer.to_crs(epsg=3857)
 
+    #i centri vaccinali che sono all'interno del buffer
     vacc = somm_vacc[somm_vacc.geometry.within(buffer.geometry.squeeze())]
     coordiante = np.array(vacc[['lat','lng','denominazione_struttura']])
     #print(coordiante)
 
+    #creazione dell'array così che javascript possa capirlo senza che nessuno debba decodare niente
     result = ""
     for cord in coordiante:
         result += "[" + str(cord[1]) + "," + str(cord[0]) + ","  + "'"  + str(cord[2]) + "'" + "],"
 
 #la lunghezza di result - l'ultimo carattere che è la virgola che non mi serve più le quadre è per l'array muldidimansionale
     result = "[" + result[0:len(result) -1] + "]"
-
-    print(result)
-
-
- 
-
     return render_template("index.html" , posizione = posizione, x = result)
     
 
+#TODO:logout qui poi andremo a salvare quando è uscito dal sito 
 @app.route('/logout')
 def logout():
     session.pop('loggedin', None)
     session.pop('id', None)
     session.pop('username', None)
     return redirect(url_for('login'))
+
 
 #stesso metotdo usato prima per il login ma l'unico controllo è quello che colui che si registra non esisti già
 @app.route('/register', methods =['GET', 'POST'])
