@@ -35,33 +35,62 @@
       <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
       <script>
 
+         
+
         var routingControl;
         var map;
         var lastRoute = null;
+        var i = 0;
+        var gg = 0;
 
-         var greenIcon = new L.Icon({
-             iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-             iconSize: [25, 41],
+        var icontrasparente = new L.Icon({
+             iconUrl: '../static/icona-trasparente.png',
+             //shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+             iconSize: [41, 41],
              iconAnchor: [12, 41],
              popupAnchor: [1, -34],
              shadowSize: [41, 41]
          });
+
+        
+
+         var iconacasa = new L.Icon({
+             iconUrl: '../static/mansion.png',
+             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+             iconSize: [41, 41],
+             iconAnchor: [12, 41],
+             popupAnchor: [1, -34],
+             shadowSize: [41, 41]
+         });
+
+         var iconacentrivaccinali = new L.icon({
+            iconUrl: '../static/siringa.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [41, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+         })
          
          
          map = L.map("map").setView([{{ posizione[0]}}, {{posizione[1]}}], 13);
          mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
          L.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
              attribution: "&copy; " + mapLink + " Contributors",
-             //maxZoom: 13,
+             //maxZoom: 20,
          }).addTo(map);
 
 
          //bisogna dire che quello che si sta passando non bisogna toccarlo ma bisogna lasciarlo così com'è
          var planes = {{x | safe}};
          
-         for (var i = 0; i < planes.length; i++) {
-             marker = new L.marker([planes[i][1], planes[i][0]]).on('click', onClick).bindPopup(planes[i][2]).addTo(map);
+         for (i; i < planes.length; i++) {
+            
+             marker = new L.marker([planes[i][1], planes[i][0]],{icon:iconacentrivaccinali}).on('click', onClick).bindPopup(planes[i][2]).addTo(map);
+           
+                
+       
+             
          }
 
 
@@ -71,25 +100,31 @@
               lastRoute = null;
             }
              //Clear()
+
+             
+
              var lat = {{posizione[0]}}
              var lon = {{posizione[1]}}
              //alert(this.getLatLng());
              routingControl = L.Routing.control({
                  waypoints: [
                      L.latLng(lat, lon),
-                     L.latLng(this.getLatLng())
+                     L.latLng(this.getLatLng()),
+                     
+                     
                  ],
                  routeWhileDragging: true,
                  lineOptions:{
                    styles:[{color:"orange",opacity:1,weight:5}]
                  },
                  createMarker: function(i, wp, nWps) {
-                 return L.marker(wp.latLng, {icon: greenIcon });
+                 return L.marker(wp.latLng, {icon: icontrasparente });
                  },
              }).addTo(map);
              lastRoute = routingControl
+             //document.cookie = "info=" + planes[i]
          }
-         L.marker([{{ posizione[0]}}, {{ posizione[1]}}], { icon: greenIcon }).addTo(map);
+         L.marker([{{ posizione[0]}}, {{ posizione[1]}}], { icon: iconacasa }).addTo(map);
          L.circle([{{ posizione[0]}}, {{ posizione[1]}}], 4000).addTo(map);
       </script>
    </body>
