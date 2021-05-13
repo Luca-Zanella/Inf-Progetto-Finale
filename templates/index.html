@@ -62,6 +62,12 @@
          /*width: 100%;*/
          }
 
+         .containerinfo{
+           visibility: visible;
+           position: fixed;
+           bottom: 0%;
+         }
+
 
          
       </style>
@@ -72,11 +78,6 @@
       <script>
 
          
-
-      
-
-      
-
         var routingControl;
         var map;
         var lastRoute = null;
@@ -126,17 +127,6 @@
          $(".leaflet-control-zoom").css("visibility", "hidden");
          new L.Control.Zoom({ position: 'topleft' }).addTo(map);
 
-         
-
-         
-
-      
-
-        
-
-
-         
-
 
          //bisogna dire che quello che si sta passando non bisogna toccarlo ma bisogna lasciarlo così com'è
          var planes = {{x | safe}};
@@ -171,6 +161,7 @@
                      
                  ],
                  routeWhileDragging: true,
+                 position:"bottomright",
                  lineOptions:{
                    styles:[{color:"orange",opacity:1,weight:5}]
                  },
@@ -180,6 +171,8 @@
              }).addTo(map);
              lastRoute = routingControl
              //document.cookie = "info=" + planes[i]
+             
+           
          }
          L.marker([{{ posizione[0]}}, {{ posizione[1]}}], { icon: iconacasa }).addTo(map);
          L.circle([{{ posizione[0]}}, {{ posizione[1]}}], 4000).addTo(map);
