@@ -117,7 +117,7 @@ def index():
     #creazione dell'array così che javascript possa capirlo senza che nessuno debba decodare niente
     result = ""
     for cord in coordiante:
-        result += "[" + str(cord[1]) + "," + str(cord[0]) + ","  + "'"  + str(cord[2]) + "'" + "],"
+        result += "[" + str(cord[1]) + "," + str(cord[0]) + ","  + '"'  + str(cord[2]) + '"' + "],"
 
 #la lunghezza di result - l'ultimo carattere che è la virgola che non mi serve più le quadre è per l'array muldidimansionale
     result = "[" + result[0:len(result) -1] + "]"
