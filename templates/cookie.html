@@ -59,7 +59,7 @@
         document.cookie =
           'coord='  +   position.coords.latitude + ":" + position.coords.longitude;
         
-        document.cookie = 'utente=' + '{{session.username}}';
+        document.cookie = 'utente=' + '{{session.username}}' + ":" + '{{session.id}}';
         
         window.location.replace("/index")
       }
