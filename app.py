@@ -63,14 +63,15 @@ def login():
             #return render_template('index.html', msg = msg)
 
             #questo permette di fare il redirect url_for ad una pagna https perchè di standard l'url for lo fa ad una pagina http
-            return redirect(url_for("cookie",_external=True,_scheme='https'))
+            #return redirect(url_for("cookie",_external=True,_scheme='https'))
+            return redirect(url_for("cookie"))
 
             
 
             
             
         else:
-            #caso contrario messaggio normale di errore e passa anche questo per farlo vedere su html
+            #caso contrario messaggio normale di errore e passa anche questo per farlo vedere su html solo se vogliamo mettere online il sito
             msg = 'Incorrect username / password !'
     return render_template('login.html', msg = msg)
 
@@ -132,7 +133,8 @@ def logout():
     session.pop('loggedin', None)
     session.pop('id', None)
     session.pop('username', None)
-    return redirect(url_for('login',_external=True,_scheme='https'))
+    #return redirect(url_for('login',_external=True,_scheme='https'))
+    return redirect(url_for('login'))
 
 
 #stesso metotdo usato prima per il login ma l'unico controllo è quello che colui che si registra non esisti già
