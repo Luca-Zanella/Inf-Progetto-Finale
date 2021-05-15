@@ -61,7 +61,9 @@ def login():
 
            
             #return render_template('index.html', msg = msg)
-            return redirect(url_for("cookie"))
+
+            #questo permette di fare il redirect url_for ad una pagna https perchè di standard l'url for lo fa ad una pagina http
+            return redirect(url_for("cookie",_external=True,_scheme='https'))
 
             
 
@@ -130,7 +132,7 @@ def logout():
     session.pop('loggedin', None)
     session.pop('id', None)
     session.pop('username', None)
-    return redirect(url_for('login'))
+    return redirect(url_for('login',_external=True,_scheme='https'))
 
 
 #stesso metotdo usato prima per il login ma l'unico controllo è quello che colui che si registra non esisti già
