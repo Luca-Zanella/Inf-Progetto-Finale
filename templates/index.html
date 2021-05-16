@@ -172,7 +172,14 @@
            
          }
          L.marker([{{ posizione[0]}}, {{ posizione[1]}}], { icon: iconacasa }).addTo(map);
-         L.circle([{{ posizione[0]}}, {{ posizione[1]}}], 4000).addTo(map);
+         var circle = L.circle([{{ posizione[0]}}, {{ posizione[1]}}],{
+           radius:{{dimensione}},
+           weight:3,
+           stroke: true,
+           color: "blue",
+           fillOpacity:0.15
+
+          }).addTo(map);
       </script>
    </body>
 </html>

@@ -105,9 +105,10 @@ def index():
     punto_utente = Point([lat,lon][::-1])
     punto = geopandas.GeoSeries([punto_utente], crs='EPSG:4326').to_crs(epsg=3857)
     #creazione del buffer
-    buffer = punto.buffer(4000)
-    somm_vacc = geopandas.GeoDataFrame(somm_vacc,geometry=geopandas.points_from_xy(somm_vacc["lng"],somm_vacc["lat"]))
-    somm_vacc.crs = 'epsg:4326'
+    dimensione = 4000
+    buffer = punto.buffer(dimensione)
+    somm_vacc = geopandas.GeoDataFrame(somm_vacc,geometry=geopandas.points_from_xy(somm_vacc["lng"],somm_vacc["lat"]),crs=4326)
+    #somm_vacc.crs = 'epsg:4326'
 
     somm_vacc = somm_vacc.to_crs(epsg=3857)
     buffer = buffer.to_crs(epsg=3857)
@@ -124,7 +125,7 @@ def index():
 
 #la lunghezza di result - l'ultimo carattere che è la virgola che non mi serve più le quadre è per l'array muldidimansionale
     result = "[" + result[0:len(result) -1] + "]"
-    return render_template("index.html" , posizione = posizione, x = result)
+    return render_template("index.html" , posizione = posizione, x = result,dimensione = dimensione)
     
 
 #TODO:logout qui poi andremo a salvare quando è uscito dal sito 
