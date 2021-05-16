@@ -1,185 +1,193 @@
 <!DOCTYPE html>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <html>
-   <head>
-      <title>Mappa Vacc</title>
 
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-      <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
-      <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-     
-      <meta charset="UTF-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <link
-         rel="stylesheet"
-         href="https://d19vzq90twjlae.cloudfront.net/leaflet-0.7/leaflet.css"
-         />
-      <link
-         rel="stylesheet"
-         href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css"
-         />
-      <link
-         rel="stylesheet"
-         href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
-         />
-   </head>
-   <body>
+<head>
+  <title>Mappa Vacc</title>
 
-      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-         <div class="container-fluid">
-           <div class="navbar-header">
-             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                 <span class="sr-only">Toggle navigation</span>
-                 <span class="icon-bar"></span>
-                 <span class="icon-bar"></span>
-                 <span class="icon-bar"></span>
-               </button>
-             <a class="navbar-brand" href="#">Mappa Centri Vaccinali</a>
-           </div>
-           <div class="collapse navbar-collapse">
-             <ul class="nav navbar-nav">
-               <li><a href="#">Home</a></li>
-               <li><a href="/logout">logout</a></li>
-     
-             </ul>
-           </div>
-         </div>
-       </div>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://d19vzq90twjlae.cloudfront.net/leaflet-0.7/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+  <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/navbar-top-fixed/" />
 
-      <style>
-         body {
-         padding: 0;
-         margin: 0;
-         }
-         html,
-         body,
-         #map {
-         height: 100%;
-         /*width: 100%;*/
-         }
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
 
-         .containerinfo{
-           visibility: visible;
-           position: fixed;
-           bottom: 0%;
-         }
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
 
-
-         
-      </style>
-      <div id="map"></div>
-      <script src="https://d19vzq90twjlae.cloudfront.net/leaflet-0.7/leaflet.js"></script>
-      <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
-      <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
-      <script>
-
-         
-        var routingControl;
-        var map;
-        var lastRoute = null;
-        var i = 0;
-        var gg = 0;
-
-        var icontrasparente = new L.Icon({
-             iconUrl: '../static/icona-trasparente.png',
-             //shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-             iconSize: [41, 41],
-             iconAnchor: [12, 41],
-             popupAnchor: [1, -34],
-             shadowSize: [41, 41]
-         });
-
+<body>
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" href="#">Mappa Centri Vaccinali</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+      aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/logout">logut</a>
+        </li>
         
+      </ul>
+      
+      <form class="form-inline mt-2 mt-md-0">
+        <input class="form-control mr-sm-2" type="number"  min="0" placeholder="Search" aria-label="Search" />
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+          Search
+        </button>
+      </form>
+    </div>
+  </nav>
 
-         var iconacasa = new L.Icon({
-             iconUrl: '../static/mansion.png',
-             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-             iconSize: [41, 41],
-             iconAnchor: [12, 41],
-             popupAnchor: [1, -34],
-             shadowSize: [41, 41]
-         });
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+    }
 
-         var iconacentrivaccinali = new L.icon({
-            iconUrl: '../static/siringa.png',
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-            iconSize: [41, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41]
-         })
+    html,
+    body,
+    #map {
+      height: 100%;
+      /*width: 100%;*/
+    }
 
-
-         
-         
-         
-         map = L.map("map").setView([{{ posizione[0]}}, {{posizione[1]}}], 13);
-         mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
-         L.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-             attribution: "&copy; " + mapLink + " Contributors",
-             //maxZoom: 20,
-         }).addTo(map);
-
-         $(".leaflet-control-zoom").css("visibility", "hidden");
-         new L.Control.Zoom({ position: 'topleft' }).addTo(map);
-
-
-         //bisogna dire che quello che si sta passando non bisogna toccarlo ma bisogna lasciarlo così com'è
-         var planes = {{x | safe}};
-         
-         for (i; i < planes.length; i++) {
-            
-             marker = new L.marker([planes[i][1], planes[i][0]],{icon:iconacentrivaccinali}).on('click', onClick).bindPopup(planes[i][2]).addTo(map);
-           
-                
-       
-             
-         }
+    .containerinfo {
+      visibility: visible;
+      position: fixed;
+      bottom: 0%;
+    }
+  </style>
+  <div id="map"></div>
+  <script src="https://d19vzq90twjlae.cloudfront.net/leaflet-0.7/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+  <script>
 
 
-         function onClick(e) {
-            if (lastRoute != null) {
-              map.removeControl(lastRoute);
-              lastRoute = null;
-            }
-             //Clear()
+    var routingControl;
+    var map;
+    var lastRoute = null;
+    var i = 0;
+    var gg = 0;
 
-             
+    var icontrasparente = new L.Icon({
+      iconUrl: '../static/icona-trasparente.png',
+      //shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+      iconSize: [41, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
 
-             var lat = {{posizione[0]}}
-             var lon = {{posizione[1]}}
-             //alert(this.getLatLng());
-             routingControl = L.Routing.control({
-                 waypoints: [
-                     L.latLng(lat, lon),
-                     L.latLng(this.getLatLng()),
-                     
-                     
-                 ],
-                 routeWhileDragging: true,
-                 position:"bottomright",
-                 lineOptions:{
-                   styles:[{color:"orange",opacity:1,weight:5}]
-                 },
-                 createMarker: function(i, wp, nWps) {
-                 return L.marker(wp.latLng, {icon: icontrasparente });
-                 },
-             }).addTo(map);
-             lastRoute = routingControl
-             //document.cookie = "info=" + planes[i]
-             
-           
-         }
-         L.marker([{{ posizione[0]}}, {{ posizione[1]}}], { icon: iconacasa }).addTo(map);
-         var circle = L.circle([{{ posizione[0]}}, {{ posizione[1]}}],{
-           radius:{{dimensione}},
-           weight:3,
-           stroke: true,
-           color: "blue",
-           fillOpacity:0.15
 
-          }).addTo(map);
-      </script>
-   </body>
+
+    var iconacasa = new L.Icon({
+      iconUrl: '../static/mansion.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+      iconSize: [41, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+
+    var iconacentrivaccinali = new L.icon({
+      iconUrl: '../static/siringa.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+      iconSize: [41, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    })
+
+
+
+
+
+    map = L.map("map").setView([{{ posizione[0]}}, {{posizione[1]}}], 13);
+    mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+    L.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; " + mapLink + " Contributors",
+      //maxZoom: 20,
+    }).addTo(map);
+
+    $(".leaflet-control-zoom").css("visibility", "hidden");
+    new L.Control.Zoom({ position: 'topleft' }).addTo(map);
+
+
+    //bisogna dire che quello che si sta passando non bisogna toccarlo ma bisogna lasciarlo così com'è
+    var planes = {{ x | safe}};
+
+    for (i; i < planes.length; i++) {
+
+      marker = new L.marker([planes[i][1], planes[i][0]], { icon: iconacentrivaccinali }).on('click', onClick).bindPopup(planes[i][2]).addTo(map);
+
+
+
+
+    }
+
+
+    function onClick(e) {
+      if (lastRoute != null) {
+        map.removeControl(lastRoute);
+        lastRoute = null;
+      }
+      //Clear()
+
+
+
+      var lat = {{ posizione[0]}}
+
+    var lon = {{ posizione[1]}}
+    //alert(this.getLatLng());
+    routingControl = L.Routing.control({
+      waypoints: [
+        L.latLng(lat, lon),
+        L.latLng(this.getLatLng()),
+
+
+      ],
+      routeWhileDragging: true,
+      position: "bottomright",
+      lineOptions: {
+        styles: [{ color: "orange", opacity: 1, weight: 5 }]
+      },
+      createMarker: function (i, wp, nWps) {
+        return L.marker(wp.latLng, { icon: icontrasparente });
+      },
+    }).addTo(map);
+    lastRoute = routingControl
+           //document.cookie = "info=" + planes[i]
+
+
+       }
+    L.marker([{{ posizione[0]}}, {{ posizione[1]}}], { icon: iconacasa }).addTo(map);
+    var circle = L.circle([{{ posizione[0]}}, {{posizione[1]}}], {
+      radius: {{ dimensione }},
+      weight: 3,
+        stroke: true,
+          color: "blue",
+            fillOpacity: 0.15
+
+    }).addTo(map);
+  </script>
+</body>
+
 </html>
