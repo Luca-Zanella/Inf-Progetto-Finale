@@ -2,6 +2,8 @@
 from logging import info
 from flask import Flask,render_template, request, redirect, url_for, session,Response,jsonify
 import re
+import flask
+from flask.helpers import make_response
 import pyodbc as py
 import pandas as pd
 import numpy as np
@@ -11,7 +13,6 @@ from shapely.geometry import Point
 
 from datetime import date, datetime
 import time
-from ast import literal_eval
 import json
 
 
@@ -148,27 +149,17 @@ def index():
 #la lunghezza di result - l'ultimo carattere che è la virgola che non mi serve più le quadre è per l'array muldidimansionale
     result = "[" + result[0:len(result) -1] + "]"
 
-    information = request.data
-    data_string = information.decode('utf-8')
-    #data_dict = json.loads(data_string)
-    data_dict['lat']
-    
-    print(type(information))
 
-   
+    information = request.data.decode('utf-8')
+    #print("*" + information + "*")
 
+    if information != "":
+        m = information
+        o = json.loads(m)
+        print(o['lat'], o['lng'])
 
 
     return render_template("index.html" , posizione = posizione, x = result,dimensione = dimensione)
-    
-
-"""
-@app.route('/this-route', methods=['GET', 'POST'])
-def thisRoute():
-    information = request.data
-    print(information)
-    return "1"
-"""
 
 @app.route('/logout')
 def logout():
