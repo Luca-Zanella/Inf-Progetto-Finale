@@ -1,5 +1,6 @@
 
-from flask import Flask, render_template, request, redirect, url_for, session,Response
+from logging import info
+from flask import Flask,render_template, request, redirect, url_for, session,Response,jsonify
 import re
 import pyodbc as py
 import pandas as pd
@@ -10,6 +11,8 @@ from shapely.geometry import Point
 
 from datetime import date, datetime
 import time
+from ast import literal_eval
+import json
 
 
 
@@ -17,10 +20,10 @@ import time
   
 app = Flask(__name__)
 
-app.secret_key = 'your secret key'
+#app.secret_key = 'your secret key'
 
 
-x = ""
+
 
 
 
@@ -52,7 +55,6 @@ def login():
         cursor.execute('SELECT * FROM accounts WHERE username = ? AND password = ?', (username, password, ))
         account = cursor.fetchone()
         if account:
-            #TODO: andreamo a fare il salvataggio su sql di quando l'utente si lgga
             #se il login è riouscto 
             session['loggedin'] = True
             #se l'id matcha con la prima colonna che ho su sql questo è un array
@@ -71,7 +73,12 @@ def login():
             
             #per far vedere quale html voglio usare o voglio far vedere
             cursor.execute('INSERT INTO dbo.prova_log (data,tempo_iniziale,ID_UTENTE) VALUES (?,?,?)', (df_data_log,df_time_iniziale,session['id']))
+
             conn.commit()
+
+            cursor.execute('SELECT TOP 1 * FROM dbo.prova_log WHERE ID_UTENTE = (?) ORDER BY data,tempo_iniziale DESC' , (session['id']))
+            id_prova_log = cursor.fetchone()
+            print(id_prova_log[0])
 
 
 
@@ -140,16 +147,33 @@ def index():
 
 #la lunghezza di result - l'ultimo carattere che è la virgola che non mi serve più le quadre è per l'array muldidimansionale
     result = "[" + result[0:len(result) -1] + "]"
+
+    information = request.data
+    data_string = information.decode('utf-8')
+    #data_dict = json.loads(data_string)
+    data_dict['lat']
+    
+    print(type(information))
+
+   
+
+
+
     return render_template("index.html" , posizione = posizione, x = result,dimensione = dimensione)
     
 
+"""
+@app.route('/this-route', methods=['GET', 'POST'])
+def thisRoute():
+    information = request.data
+    print(information)
+    return "1"
+"""
 
 @app.route('/logout')
 def logout():
-    #TODO:logout qui poi andremo a salvare quando è uscito dal sito 
     cursor = conn.cursor()
     df_tempo_finale = datetime.now().strftime("%H:%M:%S")
-    print(df_time_iniziale)
     cursor.execute('UPDATE dbo.prova_log  SET tempo_finale = (?) WHERE ID_UTENTE = (?) AND data = (?) AND tempo_iniziale = (?)',(df_tempo_finale,session['id'],df_data_log,df_time_iniziale))
     conn.commit()
 
@@ -202,4 +226,6 @@ def register():
     return render_template('register.html', msg = msg)
 
 if __name__ == '__main__':
-   app.run(debug=True)
+    app.secret_key = 'super secret key'
+    
+    app.run(debug=True)
