@@ -1,18 +1,10 @@
 
-import base64
-from ctypes import c_ushort
-from glob import glob
-from io import BytesIO
-import contextily
 from flask import Flask, render_template, request, redirect, url_for, session,Response
 import re
 import pyodbc as py
 import pandas as pd
 import numpy as np
 import geopandas
-import io
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
 from shapely.geometry import Point
 
 
@@ -89,8 +81,8 @@ def login():
             #return render_template('index.html', msg = msg)
 
             #questo permette di fare il redirect url_for ad una pagna https perchè di standard l'url for lo fa ad una pagina http
-            return redirect(url_for("cookie",_external=True,_scheme='https'))
-            #return redirect(url_for("cookie"))
+            #return redirect(url_for("cookie",_external=True,_scheme='https'))
+            return redirect(url_for("cookie"))
 
             
 
@@ -111,9 +103,6 @@ def cookie():
 
 @app.route("/index",methods=["GET","POST"])
 def index():
-    #creazione della figura
-    fig = Figure()
-    ax = fig.add_subplot()
 
     #richiesta della tabella a sql server
     query_somm_vacc = 'SELECT * FROM dbo.puntiSomministrazioneVaccini'
@@ -169,8 +158,8 @@ def logout():
     session.pop('loggedin', None)
     session.pop('id', None)
     session.pop('username', None)
-    return redirect(url_for('login',_external=True,_scheme='https'))
-    #return redirect(url_for('login'))
+    #return redirect(url_for('login',_external=True,_scheme='https'))
+    return redirect(url_for('login'))
 
 
 #stesso metotdo usato prima per il login ma l'unico controllo è quello che colui che si registra non esisti già
