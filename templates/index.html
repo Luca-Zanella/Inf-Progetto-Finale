@@ -68,17 +68,15 @@
       /*width: 100%;*/
     }
 
-    .containerinfo {
-      visibility: visible;
-      position: fixed;
-      bottom: 0%;
-    }
+   
   </style>
   <div id="map"></div>
   <script src="https://d19vzq90twjlae.cloudfront.net/leaflet-0.7/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
   <script>
+
+    
 
 
     var routingControl;
@@ -130,6 +128,8 @@
     $(".leaflet-control-zoom").css("visibility", "hidden");
     new L.Control.Zoom({ position: 'topleft' }).addTo(map);
 
+   
+
 
     //bisogna dire che quello che si sta passando non bisogna toccarlo ma bisogna lasciarlo così com'è
     var planes = {{ x | safe}};
@@ -178,6 +178,8 @@
 
 
        }
+
+  
     L.marker([{{ posizione[0]}}, {{ posizione[1]}}], { icon: iconacasa }).addTo(map);
     var circle = L.circle([{{ posizione[0]}}, {{posizione[1]}}], {
       radius: {{ dimensione }},

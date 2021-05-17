@@ -1,5 +1,7 @@
 
 import base64
+from ctypes import c_ushort
+from glob import glob
 from io import BytesIO
 import contextily
 from flask import Flask, render_template, request, redirect, url_for, session,Response
@@ -13,11 +15,20 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from shapely.geometry import Point
 
+
+from datetime import date, datetime
+import time
+
+
+
   
   
 app = Flask(__name__)
 
 app.secret_key = 'your secret key'
+
+
+x = ""
 
 
 
@@ -29,10 +40,12 @@ password = "xxx123##"
 
 #connessione normale per far si che si possa connettere il server
 conn = py.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password) 
+
+
 @app.route("/")
 #sulla pagina /login si fa metodo get post per passare le informazioni da html a python, in questo caso bisogna usare il post
 @app.route('/login', methods =['GET', 'POST'])
-#TODO: andreamo a fare il salvataggio su sql di quando l'utente si lgga
+
 def login():
     #si inizializza un messaggio per poi andare a dire nell'if quando riuscito che il log è andato a buon fine
     msg = ''
@@ -47,6 +60,7 @@ def login():
         cursor.execute('SELECT * FROM accounts WHERE username = ? AND password = ?', (username, password, ))
         account = cursor.fetchone()
         if account:
+            #TODO: andreamo a fare il salvataggio su sql di quando l'utente si lgga
             #se il login è riouscto 
             session['loggedin'] = True
             #se l'id matcha con la prima colonna che ho su sql questo è un array
@@ -55,7 +69,19 @@ def login():
             session['username'] = account[1]
             #se tutto va a buon fine il messaggio sarà quello che poi verrà ripreso su html tramite il render_template
             msg = 'Logged in successfully !'
+
+
+            global df_data_log
+            df_data_log = datetime.now().strftime("%d/%m/%Y")
+            df_data_log = datetime.strptime(df_data_log,"%d/%m/%Y")
+            global df_time_iniziale
+            df_time_iniziale = datetime.now().strftime("%H:%M:%S")
+            
             #per far vedere quale html voglio usare o voglio far vedere
+            cursor.execute('INSERT INTO dbo.prova_log (data,tempo_iniziale,ID_UTENTE) VALUES (?,?,?)', (df_data_log,df_time_iniziale,session['id']))
+            conn.commit()
+
+
 
            #si può iniziare con l'handling dei data frame
 
@@ -63,8 +89,8 @@ def login():
             #return render_template('index.html', msg = msg)
 
             #questo permette di fare il redirect url_for ad una pagna https perchè di standard l'url for lo fa ad una pagina http
-            #return redirect(url_for("cookie",_external=True,_scheme='https'))
-            return redirect(url_for("cookie"))
+            return redirect(url_for("cookie",_external=True,_scheme='https'))
+            #return redirect(url_for("cookie"))
 
             
 
@@ -128,14 +154,23 @@ def index():
     return render_template("index.html" , posizione = posizione, x = result,dimensione = dimensione)
     
 
-#TODO:logout qui poi andremo a salvare quando è uscito dal sito 
+
 @app.route('/logout')
 def logout():
+    #TODO:logout qui poi andremo a salvare quando è uscito dal sito 
+    cursor = conn.cursor()
+    df_tempo_finale = datetime.now().strftime("%H:%M:%S")
+    print(df_time_iniziale)
+    cursor.execute('UPDATE dbo.prova_log  SET tempo_finale = (?) WHERE ID_UTENTE = (?) AND data = (?) AND tempo_iniziale = (?)',(df_tempo_finale,session['id'],df_data_log,df_time_iniziale))
+    conn.commit()
+
+
+
     session.pop('loggedin', None)
     session.pop('id', None)
     session.pop('username', None)
-    #return redirect(url_for('login',_external=True,_scheme='https'))
-    return redirect(url_for('login'))
+    return redirect(url_for('login',_external=True,_scheme='https'))
+    #return redirect(url_for('login'))
 
 
 #stesso metotdo usato prima per il login ma l'unico controllo è quello che colui che si registra non esisti già
