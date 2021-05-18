@@ -77,8 +77,8 @@
             <a class="nav-link" href="/logout">logut</a>
           </li>
         </ul>
-
-        <form class="form-inline mt-2 mt-md-0">
+<!--
+ <form class="form-inline mt-2 mt-md-0">
           <input
             class="form-control mr-sm-2"
             type="number"
@@ -90,6 +90,8 @@
             Search
           </button>
         </form>
+-->
+       
       </div>
     </nav>
 
@@ -215,18 +217,12 @@
       lastRoute = routingControl
              //document.cookie = "info=" + planes[i]
 
-      
         const URL = '/index'
         const xhr = new XMLHttpRequest();
         sender = JSON.stringify(x)
         xhr.open('POST', URL);
         xhr.send(sender);
-       
-      
-      
-      
-      
-
+ 
       }
 
 
