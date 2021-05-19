@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 import geopandas
 from shapely.geometry import Point
-
+from multiprocessing import Process
 
 from datetime import date, datetime
 import time
@@ -33,6 +33,8 @@ server = "213.140.22.237\SQLEXPRESS"
 database = "zanella.luca"
 username = "zanella.luca"
 password = "xxx123##"
+
+
 
 #connessione normale per far si che si possa connettere il server
 conn = py.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password) 
@@ -79,7 +81,7 @@ def login():
 
             cursor.execute('SELECT TOP 1 * FROM dbo.prova_log WHERE ID_UTENTE = (?) ORDER BY data,tempo_iniziale DESC' , (session['id']))
             id_prova_log = cursor.fetchone()
-            print(id_prova_log[0])
+            print("id del log: " ,id_prova_log[0])
 
 
 
@@ -113,7 +115,7 @@ def cookie():
 def index():
 
     #richiesta della tabella a sql server
-    query_somm_vacc = 'SELECT * FROM dbo.puntiSomministrazioneVaccini'
+    query_somm_vacc = 'SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini'
     somm_vacc = pd.read_sql_query(query_somm_vacc,conn) 
 
     #richiesta del cookie creato in cookie.html
@@ -154,9 +156,11 @@ def index():
     #print("*" + information + "*")
 
     if information != "":
-        m = information
-        o = json.loads(m)
-        print(o['lat'], o['lng'])
+        information = information
+        information = json.loads(information)
+        lat,lon = information['lat'],information['lng'] 
+        print(lat,lon)
+       
 
 
     return render_template("index.html" , posizione = posizione, x = result,dimensione = dimensione)
@@ -175,6 +179,7 @@ def logout():
     session.pop('username', None)
     #return redirect(url_for('login',_external=True,_scheme='https'))
     return redirect(url_for('login'))
+    
 
 
 #stesso metotdo usato prima per il login ma l'unico controllo è quello che colui che si registra non esisti già
