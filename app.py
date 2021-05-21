@@ -114,6 +114,8 @@ def cookie():
 
 @app.route("/index",methods=["GET","POST"])
 def index():
+
+    cursor = conn.cursor()
     
 
     #richiesta della tabella a sql server
@@ -124,6 +126,16 @@ def index():
     coord = request.cookies.get('coord')
     lat = float(coord.split(":")[0])
     lon = float(coord.split(":")[1])
+
+    print(lat,lon)
+
+
+    cursor.execute('UPDATE dbo.prova_log  SET lat_utente = (?),lon_utente = (?) WHERE ID = (?)',(lat,lon,id_prova_log[0]))
+    conn.commit()
+
+
+
+
 
     #posizione serve per passare le coordinate a js per fa uscire il marker verde che saremmo il device
     posizione = [lat,lon]
@@ -158,7 +170,7 @@ def index():
     #print("*" + information + "*")
 
     if information != "":
-        cursor = conn.cursor()
+        
         
         information = information
         information = json.loads(information)
@@ -194,6 +206,7 @@ def logout():
 
 @app.route("/graph")
 def graph():
+    """
     data = [("Lombardia",1597),
     ("Veneto",1456),
     ("Umbria",1908),
@@ -204,9 +217,26 @@ def graph():
     ("Sardegna",1235),
     
     ]
+"""
 
-    labels = [row[0] for row in data]
-    values = [row[1] for row in data]
+    query_graph = "SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini"
+    df_graph = pd.read_sql(query_graph,conn)
+
+    df_graph = df_graph.groupby("area").count()["Column_1"].reset_index(name="num_vacc")
+
+
+    df_graph = np.array(df_graph[['area','num_vacc']])
+    
+
+    #print(df_graph)
+
+
+    labels = [row[0] for row in df_graph]
+    values = [row[1] for row in df_graph]
+
+
+    #labels = [row[0] for row in data]
+    #values = [row[1] for row in data]
 
     return render_template("graph.html", values=values, labels = labels)
 
