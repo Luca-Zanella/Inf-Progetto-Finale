@@ -79,7 +79,8 @@ def login():
 
             conn.commit()
 
-            cursor.execute('SELECT TOP 1 * FROM dbo.prova_log WHERE ID_UTENTE = (?) ORDER BY data,tempo_iniziale DESC' , (session['id']))
+            cursor.execute('SELECT TOP 1 * FROM dbo.prova_log WHERE ID_UTENTE = (?) ORDER BY data DESC,tempo_iniziale DESC' , (session['id']))
+            global id_prova_log
             id_prova_log = cursor.fetchone()
             print("id del log: " ,id_prova_log[0])
 
@@ -113,6 +114,7 @@ def cookie():
 
 @app.route("/index",methods=["GET","POST"])
 def index():
+    
 
     #richiesta della tabella a sql server
     query_somm_vacc = 'SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini'
@@ -156,10 +158,19 @@ def index():
     #print("*" + information + "*")
 
     if information != "":
+        cursor = conn.cursor()
+        
         information = information
         information = json.loads(information)
         lat,lon = information['lat'],information['lng'] 
-        print(lat,lon)
+        #print(lat,lon)
+        cursor.execute('SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini WHERE lat = (?) AND lng = (?) ',(lat,lon))
+        id_punto = cursor.fetchone()
+        #id_punto = int(id_punto)
+        cursor.execute('INSERT INTO dbo.Select_utente (ID_LOG,ID_PUNTO_VACCINALE) VALUES (?,?) ',(int(id_prova_log[0]),int(id_punto[0])))
+        conn.commit()
+        print("riuscita")
+
        
 
 
