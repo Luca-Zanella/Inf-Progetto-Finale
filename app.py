@@ -181,6 +181,23 @@ def logout():
     return redirect(url_for('login'))
     
 
+@app.route("/graph")
+def graph():
+    data = [("Lombardia",1597),
+    ("Veneto",1456),
+    ("Umbria",1908),
+    ("Emilia-Romagna",896),
+    ("Toscana",755),
+    ("Piemonte",453),
+    ("Sicilia",1100),
+    ("Sardegna",1235),
+    
+    ]
+
+    labels = [row[0] for row in data]
+    values = [row[1] for row in data]
+
+    return render_template("graph.html", values=values, labels = labels)
 
 #stesso metotdo usato prima per il login ma l'unico controllo è quello che colui che si registra non esisti già
 @app.route('/register', methods =['GET', 'POST'])

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Graph Example</title>
+   </head>
+
+  <body>
+    <canvas id="myChart"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <script>
+        var ctx = document.getElementById('myChart').getContext('2d');
+var chart = new Chart(ctx, {
+    // The type of chart we want to create
+    type: 'bar',
+
+    // The data for our dataset
+    data: {
+        labels: {{labels | safe}},
+        datasets: [{
+            label: "My First dataset",
+            backgroundColor: 'orange',
+            borderColor: 'black',
+            data: {{values}},
+        }]
+    },
+
+    // Configuration options go here
+    options: {}
+});
+    </script>
+  </body>
+</html>
