@@ -206,39 +206,25 @@ def logout():
 
 @app.route("/graph")
 def graph():
-    """
-    data = [("Lombardia",1597),
-    ("Veneto",1456),
-    ("Umbria",1908),
-    ("Emilia-Romagna",896),
-    ("Toscana",755),
-    ("Piemonte",453),
-    ("Sicilia",1100),
-    ("Sardegna",1235),
-    
-    ]
-"""
 
     query_graph = "SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini"
     df_graph = pd.read_sql(query_graph,conn)
-
     df_graph = df_graph.groupby("area").count()["Column_1"].reset_index(name="num_vacc")
-
-
     df_graph = np.array(df_graph[['area','num_vacc']])
-    
-
-    #print(df_graph)
-
 
     labels = [row[0] for row in df_graph]
     values = [row[1] for row in df_graph]
 
+    #vaccinazioni tra maschi e femmine in italia
+    somm_vacc = pd.read_csv("https://raw.githubusercontent.com/italia/covid19-opendata-vaccini/master/dati/somministrazioni-vaccini-latest.csv")
+    somm_vacc = somm_vacc.groupby("area").sum()[['sesso_maschile','sesso_femminile']].reset_index()
+    somm_vacc = np.array(somm_vacc[['area','sesso_maschile','sesso_femminile']])
 
-    #labels = [row[0] for row in data]
-    #values = [row[1] for row in data]
+    maschi = [row[1] for row in somm_vacc]
+    femmine = [row[2] for row in somm_vacc]
+    area = [row[0] for row in somm_vacc]
 
-    return render_template("graph.html", values=values, labels = labels)
+    return render_template("graph.html", values=values, labels = labels, maschi = maschi,femmine = femmine, area = area)
 
 #stesso metotdo usato prima per il login ma l'unico controllo è quello che colui che si registra non esisti già
 @app.route('/register', methods =['GET', 'POST'])
