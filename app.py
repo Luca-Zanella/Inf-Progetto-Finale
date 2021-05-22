@@ -216,15 +216,24 @@ def graph():
     values = [row[1] for row in df_graph]
 
     #vaccinazioni tra maschi e femmine in italia
-    somm_vacc = pd.read_csv("https://raw.githubusercontent.com/italia/covid19-opendata-vaccini/master/dati/somministrazioni-vaccini-latest.csv")
-    somm_vacc = somm_vacc.groupby("area").sum()[['sesso_maschile','sesso_femminile']].reset_index()
+    csv_somm_vacc = pd.read_csv("https://raw.githubusercontent.com/italia/covid19-opendata-vaccini/master/dati/somministrazioni-vaccini-latest.csv")
+    somm_vacc = csv_somm_vacc.groupby("area").sum()[['sesso_maschile','sesso_femminile']].reset_index()
     somm_vacc = np.array(somm_vacc[['area','sesso_maschile','sesso_femminile']])
 
     maschi = [row[1] for row in somm_vacc]
     femmine = [row[2] for row in somm_vacc]
     area = [row[0] for row in somm_vacc]
 
-    return render_template("graph.html", values=values, labels = labels, maschi = maschi,femmine = femmine, area = area)
+    #pie per vedere quante dosi
+
+    df_somm_vacc = csv_somm_vacc.groupby('fornitore').sum()[['sesso_maschile','sesso_femminile']].reset_index()
+    df_somm_vacc['tot'] = (df_somm_vacc['sesso_maschile'] + df_somm_vacc['sesso_femminile'])
+    df_somm_vacc = np.array(df_somm_vacc[['fornitore','tot']])
+
+    fornitore = [row[0] for row in df_somm_vacc]
+    totale_fornitore = [row[1] for row in df_somm_vacc]
+
+    return render_template("graph.html", values=values, labels = labels, maschi = maschi,femmine = femmine, area = area, fornitore = fornitore, totale_fornitore = totale_fornitore)
 
 #stesso metotdo usato prima per il login ma l'unico controllo è quello che colui che si registra non esisti già
 @app.route('/register', methods =['GET', 'POST'])

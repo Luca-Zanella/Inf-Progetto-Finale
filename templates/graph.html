@@ -18,6 +18,8 @@
     integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
     crossorigin="anonymous"></script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
 
 
 
@@ -30,31 +32,32 @@
 
 <body class="gg">
 
-<div class="container-fluid jumbotron">
-  <div class="row">
-    <div class="col-md-6">
-      <canvas id="chart_pd"></canvas>
-    </div>
-    <div class="col-md-6">
-      <canvas id="myChart"></canvas>
+  <div class="container-fluid jumbotron">
+    <div class="row">
+      <div class="col-md-6">
+        <canvas id="chart_pd"></canvas>
+      </div>
+      <div class="col-md-6">
+        <canvas id="myChart"></canvas>
+      </div>
+      <div class="col-md-6">
+        <canvas id="chart_fornitore"></canvas>
+      </div>
     </div>
   </div>
-</div>
 
- 
+
 
 
 
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
   <script>
+    var ctx_chart_pd = document.getElementById('chart_pd').getContext('2d');
+    var ctx_myChart = document.getElementById('myChart').getContext('2d');
 
-    var ctx = document.getElementById('myChart').getContext('2d');
-    var chart = new Chart(ctx, {
-      // The type of chart we want to create
+    var chart = new Chart(ctx_myChart, {
       type: 'bar',
-
-      // The data for our dataset
       data: {
         labels: {{ labels | safe}},
     datasets: [{
@@ -64,17 +67,15 @@
       data: {{ values | safe}},
                 }]
             },
-
-    // Configuration options go here
     options: {
+      
       responsive: true
     }
   });
 
-
-    const labels = {{ area | safe}};
-    const data = {
-      labels: labels,
+    const labels_aree = {{ area | safe}};
+    const data_maschi_femmine = {
+      labels: labels_aree,
       datasets: [
         {
           label: 'maschi',
@@ -90,18 +91,52 @@
     }
   ]
 };
-    var ctx = document.getElementById('chart_pd').getContext('2d');
-    var chart = new Chart(ctx, {
+    var chart = new Chart(ctx_chart_pd, {
       // The type of chart we want to create
       type: 'bar',
 
       // The data for our dataset
-      data: data,
+      data: data_maschi_femmine,
       // Configuration options go here
       options: {
         responsive: true
       }
     });
+
+    const labels_fornitori = {{fornitore | safe}}
+    const data_tot_fornitori = {
+      labels: labels_fornitori,
+      datasets: [
+        {
+          label: 'Dataset 1',
+          data: {{totale_fornitore | safe}},
+          backgroundColor: [
+      'rgb(255, 99, 132)',
+      'rgb(54, 162, 235)',
+      'rgb(255, 205, 86)',
+      'rgb(46, 204, 113)',
+    ],
+          
+        }
+      ]
+    };
+
+    var chart = new Chart(chart_fornitore, {
+      // The type of chart we want to create
+      type: 'doughnut',
+
+      // The data for our dataset
+      data: data_tot_fornitori,
+      // Configuration options go here
+      options: {
+        responsive: true
+      }
+    });
+
+
+
+
+
   </script>
 
 </body>
