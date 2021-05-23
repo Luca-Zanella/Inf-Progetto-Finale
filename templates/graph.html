@@ -17,49 +17,71 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
     integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
     crossorigin="anonymous"></script>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
   <link rel="preconnect" href="https://fonts.gstatic.com">
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
-
-
-
-
-
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
   <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
-
   <title>Graph Example</title>
 
 </head>
 
 <body class="gg">
 
-  <div class="container">
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" href="#">Bleddur</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarCollapse"
+      aria-controls="navbarCollapse"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/index"
+            >Mappa</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/graph">Grafici</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/logout">Logout</a>
+        </li>
+        
+      </ul>   
+    </div>
+  </nav>
+
+  <div class="container mt-5 pt-5">
     <div class="row">
-      <div class="col-md-12 text-center">
+      <div class="col-md-12 text-center mb-5 ">
         <h3 style="font-family: 'Roboto Slab', serif;">Grafici Covid-19</h3>
       </div>
     </div>
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-6 mb-4">
+        <h6 class="text-center" style="font-family: 'Roboto Slab', serif;">Confronto tra uomini e donne</h6>
         <canvas id="chart_pd"></canvas>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-6 mb-4">
+        <h6 class="text-center" style="font-family: 'Roboto Slab', serif;">Punti vaccinali per regione</h6>
         <canvas id="myChart"></canvas>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-6 mb-4">
+        <h6 class="text-center" style="font-family: 'Roboto Slab', serif;">Tipo Vaccino Utilizzato per persone</h6>
         <canvas id="chart_fornitore"></canvas>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-6 mb-4">
         <canvas id="chart_somministrazioni"></canvas>
-      </div> 
+      </div>
     </div>
   </div>
-
-
-
-
-
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
   <script>
@@ -80,8 +102,8 @@
                 }]
             },
     options: {
-      
-      responsive: true
+      responsive: true,
+        legend: false,
     }
   });
 
@@ -92,8 +114,7 @@
         {
           label: 'maschi',
           data: {{ maschi }},
-      backgroundColor: "#98bbec",
-      
+      backgroundColor: "#98bbec",  
     },
     {
       label: 'femmine',
@@ -104,106 +125,87 @@
   ]
 };
     var chart = new Chart(ctx_chart_pd, {
-      // The type of chart we want to create
       type: 'bar',
-
-      // The data for our dataset
       data: data_maschi_femmine,
-      // Configuration options go here
       options: {
         responsive: true,
-        
       }
     });
 
-    const labels_fornitori = {{fornitore | safe}}
+    const labels_fornitori = {{ fornitore | safe}}
     const data_tot_fornitori = {
       labels: labels_fornitori,
       datasets: [
         {
           label: 'Dataset 1',
-          data: {{totale_fornitore | safe}},
-          backgroundColor: [
+          data: {{ totale_fornitore | safe}},
+    backgroundColor: [
       'rgb(255, 99, 132)',
       'rgb(54, 162, 235)',
       'rgb(255, 205, 86)',
       'rgb(46, 204, 113)',
-    ],
-          
+    ],       
         }
       ]
     };
 
     var chart = new Chart(chart_fornitore, {
-      // The type of chart we want to create
       type: 'doughnut',
-
-      // The data for our dataset
       data: data_tot_fornitori,
-      // Configuration options go here
       options: {
-        responsive: true
+        responsive: true,
+
       }
     });
 
 
-    const labels_dosi_somministrazione = {{area_dosi | safe}}
+    const labels_dosi_somministrazione = {{ area_dosi | safe}}
     const data_dosi_somministrazioni = {
       labels: labels_dosi_somministrazione,
       datasets: [
         {
           label: 'Dosi Somministrate',
-          data : {{dosi_somministrate | safe}},
-          backgroundColor: "#a1c349",
+          data: {{ dosi_somministrate | safe}},
+    backgroundColor: "#a1c349",
         },
-        {
-          label: 'Dosi da Utilizzare',
-          data: {{da_utilizzare | safe}},
-          backgroundColor: "#fd0d0d",
+    {
+      label: 'Dosi da Utilizzare',
+        data: {{ da_utilizzare | safe }},
+      backgroundColor: "#fd0d0d",
         }
       ]
     }
 
     var chart = new Chart(chart_somministrazioni, {
-      // The type of chart we want to create
       type: 'bar',
-
-      // The data for our dataset
       data: data_dosi_somministrazioni,
-      // Configuration options go here
       options: {
-    tooltips: {
-      displayColors: true,
-      callbacks:{
-        mode: 'x',
-      },
-    },
-    scales: {
-      xAxes: [{
-        stacked: true,
-        gridLines: {
-          display: false,
-        }
-      }],
-      yAxes: [{
-        stacked: true,
-        ticks: {
-          beginAtZero: true,
+        tooltips: {
+          displayColors: true,
+          callbacks: {
+            mode: 'x',
+          },
         },
-        type: 'linear',
-      }]
-    },
-    responsive: true,
-    maintainAspectRatio: false,
-    legend: { position: 'top' },
-  }
+        scales: {
+          xAxes: [{
+            stacked: true,
+            gridLines: {
+              display: false,
+            }
+          }],
+          yAxes: [{
+            stacked: true,
+            ticks: {
+              beginAtZero: true,
+            },
+            type: 'linear',
+          }]
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: { position: 'top' },
+      }
     });
-
-
-    
-
-
-
   </script>
 
 </body>
