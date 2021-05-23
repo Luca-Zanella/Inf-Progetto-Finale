@@ -19,6 +19,8 @@
     crossorigin="anonymous"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
 
 
 
@@ -32,7 +34,12 @@
 
 <body class="gg">
 
-  <div class="container-fluid jumbotron">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 text-center">
+        <h3 style="font-family: 'Roboto Slab', serif;">Grafici Covid-19</h3>
+      </div>
+    </div>
     <div class="row">
       <div class="col-md-6">
         <canvas id="chart_pd"></canvas>
@@ -43,6 +50,9 @@
       <div class="col-md-6">
         <canvas id="chart_fornitore"></canvas>
       </div>
+      <div class="col-md-6">
+        <canvas id="chart_somministrazioni"></canvas>
+      </div> 
     </div>
   </div>
 
@@ -55,14 +65,16 @@
   <script>
     var ctx_chart_pd = document.getElementById('chart_pd').getContext('2d');
     var ctx_myChart = document.getElementById('myChart').getContext('2d');
+    var chart_fornitore = document.getElementById('chart_fornitore').getContext('2d');
+    var chart_somministrazioni = document.getElementById('chart_somministrazioni').getContext('2d')
 
     var chart = new Chart(ctx_myChart, {
       type: 'bar',
       data: {
         labels: {{ labels | safe}},
     datasets: [{
-      label: "My First dataset",
-      backgroundColor: 'orange',
+      label: "Punti Vaccinali per Regione",
+      backgroundColor: '#95dbc4',
       borderColor: 'black',
       data: {{ values | safe}},
                 }]
@@ -80,13 +92,13 @@
         {
           label: 'maschi',
           data: {{ maschi }},
-      backgroundColor: "#add8e6",
+      backgroundColor: "#98bbec",
       
     },
     {
       label: 'femmine',
         data: {{ femmine }},
-      backgroundColor: "pink",
+      backgroundColor: "#f8a0b7",
       
     }
   ]
@@ -99,7 +111,8 @@
       data: data_maschi_femmine,
       // Configuration options go here
       options: {
-        responsive: true
+        responsive: true,
+        
       }
     });
 
@@ -134,6 +147,60 @@
     });
 
 
+    const labels_dosi_somministrazione = {{area_dosi | safe}}
+    const data_dosi_somministrazioni = {
+      labels: labels_dosi_somministrazione,
+      datasets: [
+        {
+          label: 'Dosi Somministrate',
+          data : {{dosi_somministrate | safe}},
+          backgroundColor: "#a1c349",
+        },
+        {
+          label: 'Dosi da Utilizzare',
+          data: {{da_utilizzare | safe}},
+          backgroundColor: "#fd0d0d",
+        }
+      ]
+    }
+
+    var chart = new Chart(chart_somministrazioni, {
+      // The type of chart we want to create
+      type: 'bar',
+
+      // The data for our dataset
+      data: data_dosi_somministrazioni,
+      // Configuration options go here
+      options: {
+    tooltips: {
+      displayColors: true,
+      callbacks:{
+        mode: 'x',
+      },
+    },
+    scales: {
+      xAxes: [{
+        stacked: true,
+        gridLines: {
+          display: false,
+        }
+      }],
+      yAxes: [{
+        stacked: true,
+        ticks: {
+          beginAtZero: true,
+        },
+        type: 'linear',
+      }]
+    },
+    responsive: true,
+    maintainAspectRatio: false,
+    legend: { position: 'top' },
+  }
+    });
+
+
+    
 
 
 

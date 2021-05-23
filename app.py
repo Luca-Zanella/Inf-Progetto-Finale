@@ -233,7 +233,15 @@ def graph():
     fornitore = [row[0] for row in df_somm_vacc]
     totale_fornitore = [row[1] for row in df_somm_vacc]
 
-    return render_template("graph.html", values=values, labels = labels, maschi = maschi,femmine = femmine, area = area, fornitore = fornitore, totale_fornitore = totale_fornitore)
+    dosi = pd.read_csv("https://raw.githubusercontent.com/italia/covid19-opendata-vaccini/master/dati/vaccini-summary-latest.csv")
+    dosi['da_utilizzare'] = dosi['dosi_consegnate'] - dosi['dosi_somministrate']
+    dosi = np.array(dosi[['area','dosi_somministrate','da_utilizzare']])
+
+    area_dosi = [row[0] for row in dosi]
+    dosi_somministrate = [row[1] for row in dosi]
+    da_utilizzare = [row[2] for row in dosi]
+
+    return render_template("graph.html", values=values, labels = labels, maschi = maschi,femmine = femmine, area = area, fornitore = fornitore, totale_fornitore = totale_fornitore,area_dosi = area_dosi, dosi_somministrate = dosi_somministrate,da_utilizzare = da_utilizzare)
 
 #stesso metotdo usato prima per il login ma l'unico controllo è quello che colui che si registra non esisti già
 @app.route('/register', methods =['GET', 'POST'])
