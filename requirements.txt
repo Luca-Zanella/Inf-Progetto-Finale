@@ -83,7 +83,6 @@ pyrsistent
 PySocks 
 python-dateutil==2.8.1
 pytz 
-pywinpty 
 pyzmq 
 qtconsole 
 QtPy==1.9.0
