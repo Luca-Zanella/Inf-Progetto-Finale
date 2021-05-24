@@ -1,7 +1,7 @@
 
 from flask import Flask,render_template, request, redirect, url_for, session
 import re
-import pyodbc as py
+#import pyodbc as py
 import pandas as pd
 import numpy as np
 import geopandas
@@ -9,6 +9,7 @@ from shapely.geometry import Point
 from datetime import date, datetime
 import time
 import json
+import pymssql as py
 
 
 
@@ -31,8 +32,8 @@ password = "xxx123##"
 
 
 #connessione normale per far si che si possa connettere il server
-conn = py.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password) 
-#conn = py.connect(server,username,password,database)
+#conn = py.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password) 
+conn = py.connect(server,username,password,database)
 
 @app.route("/")
 #sulla pagina /login si fa metodo get post per passare le informazioni da html a python, in questo caso bisogna usare il post
@@ -50,7 +51,7 @@ def login():
         cursor = conn.cursor()
         #query che dice username e la password assegnati prima andranni ad essere assegnati ai specifici campi username e password
         #-----
-        cursor.execute('SELECT * FROM accounts WHERE username = ? AND password = ?', (username, password, ))
+        cursor.execute('SELECT * FROM accounts WHERE username = %s AND password = %s', (username, password, ))
         account = cursor.fetchone()
         if account:
             #se il login è riouscto 
@@ -70,7 +71,7 @@ def login():
             df_time_iniziale = datetime.now().strftime("%H:%M:%S")
             
             #per far vedere quale html voglio usare o voglio far vedere ----
-            cursor.execute('INSERT INTO dbo.prova_log (data,tempo_iniziale,ID_UTENTE) VALUES (?,?,?)', (df_data_log,df_time_iniziale,session['id']))
+            cursor.execute('INSERT INTO dbo.prova_log (data,tempo_iniziale,ID_UTENTE) VALUES (%s,%s,%s)', (df_data_log,df_time_iniziale,session['id']))
 
             conn.commit()
 
