@@ -21,7 +21,7 @@ import pymssql as py
   
   
 app = Flask(__name__)
-
+app.secret_key = 'super secret key'
 #app.secret_key = 'your secret key'
 
 #stringa di connessione con sql server tramite pyodbc
@@ -341,7 +341,4 @@ def register():
         #qui faccio come prima per login.html ma con una pagina register
     return render_template('register.html', msg = msg)
 
-if __name__ == '__main__':
-    app.secret_key = 'super secret key'
-    
-    app.run(debug=True)
+
