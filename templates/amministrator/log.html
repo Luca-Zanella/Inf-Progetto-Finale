@@ -22,12 +22,23 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-    <title>tabella accounts</title>
+    <title>Tabella Log</title>
 
     <style>
         html,
         body {
             height: 100%;
+        }
+
+        .tableFixHead {
+            overflow: auto;
+            height: 100px;
+        }
+
+        .tableFixHead thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
         }
     </style>
 
@@ -60,9 +71,10 @@
     <div class="container h-100 d-flex justify-content-center">
         <div class="col-sm-12 mx-auto my-auto ">
             <div class="my-5 ">
+                <h4 class="text-center" style="font-family: 'Roboto Slab', serif;">Tabella Log</h4>
                 <div class="table-responsive shadow-lg" style="height: 500px;">
-                    <table class="table table-fixed table-striped" style="font-family: 'Roboto Slab', serif;">
-                        <thead>
+                    <table class="table table-fixed table-striped tableFixHead" style="font-family: 'Roboto Slab', serif;">
+                        <thead >
                             <tr class="table-primary">
                                 <th scope="col" class="col">ID</th>
                                 <th scope="col" class="col">Data</th>
