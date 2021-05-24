@@ -1,19 +1,15 @@
 
-from logging import info
-from flask import Flask,render_template, request, redirect, url_for, session,Response,jsonify
+from flask import Flask,render_template, request, redirect, url_for, session
 import re
-import flask
-from flask.helpers import make_response
 import pyodbc as py
 import pandas as pd
 import numpy as np
 import geopandas
 from shapely.geometry import Point
-from multiprocessing import Process
-
 from datetime import date, datetime
 import time
 import json
+
 
 
 
@@ -95,10 +91,6 @@ def login():
             #return redirect(url_for("cookie",_external=True,_scheme='https'))
             return redirect(url_for("cookie"))
 
-            
-
-            
-            
         else:
             #caso contrario messaggio normale di errore e passa anche questo per farlo vedere su html solo se vogliamo mettere online il sito
             msg = 'Incorrect username / password !'
@@ -106,6 +98,67 @@ def login():
 
 #pagina di logut che poi verrà messo dentro una navbar questa funzione per far si che ci si possa sloggare quando si vuole
 #non che serva a molto anche perchè ti chiede sempre di loggarsi quando si entra
+
+@app.route("/login_amministrator",methods=["GET","POST"])
+def login_amministrator():
+     #si inizializza un messaggio per poi andare a dire nell'if quando riuscito che il log è andato a buon fine
+    msg = ''
+    #se utilizziamo il post (e si utilizza quello per prendere informazioni) questo request form avrà sia username che password
+    if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
+        #andiamo ad assegnare lo username e la password alle variabili interessate che poi andiamo a gestire
+        username = request.form['username']
+        password = request.form['password']
+        #creaiamo un cursore che andrà a ascalare tutto quello che gli diciamo come un cursore vero
+        cursor = conn.cursor()
+        #query che dice username e la password assegnati prima andranni ad essere assegnati ai specifici campi username e password
+        cursor.execute('SELECT * FROM dbo.amministrator WHERE username = ? AND password = ?', (username, password, ))
+        account = cursor.fetchone()
+        if account:
+            #se il login è riouscto 
+            session['loggedin'] = True
+            #se l'id matcha con la prima colonna che ho su sql questo è un array
+            session['id'] = account[0]
+            #stessa cosa con l'usernaname per il numero della colonna quindi bisogna fare un match tra quello scritto sull db e quello scritto adesso dall'utente nel login
+            session['username'] = account[1]
+            #se tutto va a buon fine il messaggio sarà quello che poi verrà ripreso su html tramite il render_template
+
+            return redirect(url_for("graph_accounts_amministrator"))
+
+        else:
+            #caso contrario messaggio normale di errore e passa anche questo per farlo vedere su html solo se vogliamo mettere online il sito
+            msg = 'Incorrect username / password !'
+    return render_template('amministrator/login-amministrator.html', msg = msg)
+
+@app.route("/graph_accounts_amministrator")
+def graph_accounts_amministrator():
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM dbo.accounts")
+    data = cursor.fetchall()
+
+    return render_template("amministrator/accounts.html", data = data)
+
+@app.route("/graph_log_amministrator")
+def graph_log_amministrator():
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM dbo.prova_log")
+    data = cursor.fetchall()
+
+    return render_template("amministrator/log.html", data = data)
+    
+
+@app.route("/graph_select_amministrator")
+def graph_select_amministrator():
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM dbo.Select_utente")
+    data = cursor.fetchall()
+
+    return render_template("amministrator/select.html", data = data)
+    
+    
+    
+
+
+
 
 
 @app.route("/cookie")
