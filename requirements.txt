@@ -26,7 +26,6 @@ Flask==1.1.2
 Flask-Images==3.0.2
 Flask-MySQLdb==0.2.0
 Flask-SQLAlchemy==2.5.1
-GDAL==3.1.4
 geographiclib==1.50
 geopandas
 geopy 
