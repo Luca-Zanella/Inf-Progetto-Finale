@@ -13,16 +13,14 @@ import json
 
 
 
+
+
+
   
   
 app = Flask(__name__)
 
 #app.secret_key = 'your secret key'
-
-
-
-
-
 
 #stringa di connessione con sql server tramite pyodbc
 server = "213.140.22.237\SQLEXPRESS"
@@ -34,7 +32,7 @@ password = "xxx123##"
 
 #connessione normale per far si che si possa connettere il server
 conn = py.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password) 
-
+#conn = py.connect(server,username,password,database)
 
 @app.route("/")
 #sulla pagina /login si fa metodo get post per passare le informazioni da html a python, in questo caso bisogna usare il post
@@ -51,6 +49,7 @@ def login():
         #creaiamo un cursore che andrà a ascalare tutto quello che gli diciamo come un cursore vero
         cursor = conn.cursor()
         #query che dice username e la password assegnati prima andranni ad essere assegnati ai specifici campi username e password
+        #-----
         cursor.execute('SELECT * FROM accounts WHERE username = ? AND password = ?', (username, password, ))
         account = cursor.fetchone()
         if account:
@@ -70,7 +69,7 @@ def login():
             global df_time_iniziale
             df_time_iniziale = datetime.now().strftime("%H:%M:%S")
             
-            #per far vedere quale html voglio usare o voglio far vedere
+            #per far vedere quale html voglio usare o voglio far vedere ----
             cursor.execute('INSERT INTO dbo.prova_log (data,tempo_iniziale,ID_UTENTE) VALUES (?,?,?)', (df_data_log,df_time_iniziale,session['id']))
 
             conn.commit()
@@ -168,78 +167,83 @@ def cookie():
 @app.route("/index",methods=["GET","POST"])
 def index():
 
-    cursor = conn.cursor()
-    
-
-    #richiesta della tabella a sql server
-    query_somm_vacc = 'SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini'
-    somm_vacc = pd.read_sql_query(query_somm_vacc,conn) 
-
-    #richiesta del cookie creato in cookie.html
-    coord = request.cookies.get('coord')
-    lat = float(coord.split(":")[0])
-    lon = float(coord.split(":")[1])
-
-    print(lat,lon)
-
-
-    cursor.execute('UPDATE dbo.prova_log  SET lat_utente = (?),lon_utente = (?) WHERE ID = (?)',(lat,lon,id_prova_log[0]))
-    conn.commit()
-
-
-
-
-
-    #posizione serve per passare le coordinate a js per fa uscire il marker verde che saremmo il device
-    posizione = [lat,lon]
-
-    #creazione el punto dell'utente per calcolare i centri vaccinali in un raggio di 4 km
-    punto_utente = Point([lat,lon][::-1])
-    punto = geopandas.GeoSeries([punto_utente], crs='EPSG:4326').to_crs(epsg=3857)
-    #creazione del buffer
-    dimensione = 4000
-    buffer = punto.buffer(dimensione)
-    somm_vacc = geopandas.GeoDataFrame(somm_vacc,geometry=geopandas.points_from_xy(somm_vacc["lng"],somm_vacc["lat"]),crs=4326)
-    #somm_vacc.crs = 'epsg:4326'
-
-    somm_vacc = somm_vacc.to_crs(epsg=3857)
-    buffer = buffer.to_crs(epsg=3857)
-
-    #i centri vaccinali che sono all'interno del buffer
-    vacc = somm_vacc[somm_vacc.geometry.within(buffer.geometry.squeeze())]
-    coordiante = np.array(vacc[['lat','lng','denominazione_struttura']])
-    #print(coordiante)
-
-    #creazione dell'array così che javascript possa capirlo senza che nessuno debba decodare niente
-    result = ""
-    for cord in coordiante:
-        result += "[" + str(cord[1]) + "," + str(cord[0]) + ","  + '"'  + str(cord[2]) + '"' + "],"
-
-#la lunghezza di result - l'ultimo carattere che è la virgola che non mi serve più le quadre è per l'array muldidimansionale
-    result = "[" + result[0:len(result) -1] + "]"
-
-
-    information = request.data.decode('utf-8')
-    #print("*" + information + "*")
-
-    if information != "":
+   # try:
+        cursor = conn.cursor()
         
-        
-        information = information
-        information = json.loads(information)
-        lat,lon = information['lat'],information['lng'] 
-        #print(lat,lon)
-        cursor.execute('SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini WHERE lat = (?) AND lng = (?) ',(lat,lon))
-        id_punto = cursor.fetchone()
-        #id_punto = int(id_punto)
-        cursor.execute('INSERT INTO dbo.Select_utente (ID_LOG,ID_PUNTO_VACCINALE) VALUES (?,?) ',(int(id_prova_log[0]),int(id_punto[0])))
+
+        #richiesta della tabella a sql server
+        query_somm_vacc = 'SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini'
+        somm_vacc = pd.read_sql_query(query_somm_vacc,conn) 
+
+        #richiesta del cookie creato in cookie.html
+        coord = request.cookies.get('coord')
+        lat = float(coord.split(":")[0])
+        lon = float(coord.split(":")[1])
+
+        print(lat,lon)
+
+
+        cursor.execute('UPDATE dbo.prova_log  SET lat_utente = (?),lon_utente = (?) WHERE ID = (?)',(lat,lon,id_prova_log[0]))
         conn.commit()
-        print("riuscita")
-
-       
 
 
-    return render_template("index.html" , posizione = posizione, x = result,dimensione = dimensione)
+
+
+
+        #posizione serve per passare le coordinate a js per fa uscire il marker verde che saremmo il device
+        posizione = [lat,lon]
+
+        #creazione el punto dell'utente per calcolare i centri vaccinali in un raggio di 4 km
+        punto_utente = Point([lat,lon][::-1])
+        punto = geopandas.GeoSeries([punto_utente], crs='EPSG:4326').to_crs(epsg=3857)
+        #creazione del buffer
+        dimensione = 4000
+        buffer = punto.buffer(dimensione)
+        somm_vacc = geopandas.GeoDataFrame(somm_vacc,geometry=geopandas.points_from_xy(somm_vacc["lng"],somm_vacc["lat"]),crs=4326)
+        #somm_vacc.crs = 'epsg:4326'
+
+        somm_vacc = somm_vacc.to_crs(epsg=3857)
+        buffer = buffer.to_crs(epsg=3857)
+
+        #i centri vaccinali che sono all'interno del buffer
+        vacc = somm_vacc[somm_vacc.geometry.within(buffer.geometry.squeeze())]
+        coordiante = np.array(vacc[['lat','lng','denominazione_struttura']])
+        #print(coordiante)
+
+        #creazione dell'array così che javascript possa capirlo senza che nessuno debba decodare niente
+        result = ""
+        for cord in coordiante:
+            result += "[" + str(cord[1]) + "," + str(cord[0]) + ","  + '"'  + str(cord[2]) + '"' + "],"
+
+    #la lunghezza di result - l'ultimo carattere che è la virgola che non mi serve più le quadre è per l'array muldidimansionale
+        result = "[" + result[0:len(result) -1] + "]"
+
+
+        information = request.data.decode('utf-8')
+        #print("*" + information + "*")
+
+        if information != "":
+            
+            
+            information = information
+            information = json.loads(information)
+            lat,lon = information['lat'],information['lng'] 
+            #print(lat,lon)
+            cursor.execute('SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini WHERE lat = (?) AND lng = (?) ',(lat,lon))
+            id_punto = cursor.fetchone()
+            #id_punto = int(id_punto)
+            cursor.execute('INSERT INTO dbo.Select_utente (ID_LOG,ID_PUNTO_VACCINALE) VALUES (?,?) ',(int(id_prova_log[0]),int(id_punto[0])))
+            conn.commit()
+            print("riuscita")
+
+        
+
+
+        return render_template("index.html" , posizione = posizione, x = result,dimensione = dimensione)
+
+    #except:
+
+     #   return redirect(url_for("login"))
 
 @app.route('/logout')
 def logout():
