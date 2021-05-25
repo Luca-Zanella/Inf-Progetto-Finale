@@ -1,20 +1,13 @@
 
 from flask import Flask,render_template, request, redirect, url_for, session
 import re
-#import pyodbc as py
 import pandas as pd
 import numpy as np
 import geopandas
 from shapely.geometry import Point
-from datetime import date, datetime
-import time
+from datetime import datetime
 import json
 import pymssql as py
-
-#web: uvicorn application.server.main:app --host 0.0.0.0 --port $PORT --workers 2
-
-
-
 
 
 
@@ -89,8 +82,8 @@ def login():
             #return render_template('index.html', msg = msg)
 
             #questo permette di fare il redirect url_for ad una pagna https perchè di standard l'url for lo fa ad una pagina http
-            return redirect(url_for("cookie",_external=True,_scheme='https'))
-            #return redirect(url_for("cookie"))
+            #return redirect(url_for("cookie",_external=True,_scheme='https'))
+            return redirect(url_for("cookie"))
 
         else:
             #caso contrario messaggio normale di errore e passa anche questo per farlo vedere su html solo se vogliamo mettere online il sito
@@ -133,34 +126,15 @@ def login_amministrator():
 @app.route("/graph_accounts_amministrator")
 def graph_accounts_amministrator():
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM dbo.accounts")
+    cursor.execute("""SELECT dbo.accounts.username, dbo.prova_log.data,dbo.prova_log.tempo_iniziale,dbo.prova_log.tempo_finale,dbo.prova_log.lat_utente,dbo.prova_log.lon_utente,dbo.ProvapuntiSomministrazioneVaccini.denominazione_struttura,dbo.ProvapuntiSomministrazioneVaccini.nome_area as area_punto_vacc
+FROM dbo.accounts
+INNER JOIN dbo.prova_log ON dbo.accounts.id = dbo.prova_log.ID_UTENTE
+INNER JOIN dbo.Select_utente ON dbo.prova_log.ID = dbo.Select_utente.ID_LOG
+INNER JOIN dbo.ProvapuntiSomministrazioneVaccini ON dbo.Select_utente.ID_PUNTO_VACCINALE = dbo.ProvapuntiSomministrazioneVaccini.Column_1
+""")
     data = cursor.fetchall()
 
     return render_template("amministrator/accounts.html", data = data)
-
-@app.route("/graph_log_amministrator")
-def graph_log_amministrator():
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM dbo.prova_log")
-    data = cursor.fetchall()
-
-    return render_template("amministrator/log.html", data = data)
-    
-
-@app.route("/graph_select_amministrator")
-def graph_select_amministrator():
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM dbo.Select_utente")
-    data = cursor.fetchall()
-
-    return render_template("amministrator/select.html", data = data)
-    
-    
-    
-
-
-
-
 
 @app.route("/cookie")
 def cookie():
@@ -259,8 +233,8 @@ def logout():
     session.pop('loggedin', None)
     session.pop('id', None)
     session.pop('username', None)
-    return redirect(url_for('login',_external=True,_scheme='https'))
-    #return redirect(url_for('login'))
+    #return redirect(url_for('login',_external=True,_scheme='https'))
+    return redirect(url_for('login'))
     
 
 @app.route("/graph")
@@ -340,5 +314,6 @@ def register():
         msg = 'Please fill out the form !'
         #qui faccio come prima per login.html ma con una pagina register
     return render_template('register.html', msg = msg)
+
 
 

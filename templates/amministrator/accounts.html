@@ -48,43 +48,6 @@
 
 <body>
 
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="#">Bleddur</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#navbarCollapse"
-          aria-controls="navbarCollapse"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="/login"
-                >Login</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/graph_accounts_amministrator"
-                  >Accounts</a>
-              </li>
-              <li class="nav-item">
-              <a class="nav-link" href="/graph_log_amministrator"
-                >Log</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/graph_select_amministrator"
-                  >Select</a>
-              </li>
-          </ul>   
-        </div>
-      </nav>
-
-
-
 
 
     <div class="container h-100 d-flex justify-content-center">
@@ -96,10 +59,14 @@
                     <table class="table table-fixed table-striped" style="font-family: 'Roboto Slab', serif;" >
                         <thead>
                             <tr class="table-primary">
-                                <th scope="col" class="col">ID</th>
                                 <th scope="col" class="col">Username</th>
-                                <th scope="col" class="col">Password</th>
-                                <th scope="col" class="col">Email</th>
+                                <th scope="col" class="col">Data</th>
+                                <th scope="col" class="col">Tempo_I</th>
+                                <th scope="col" class="col">Tempo_F</th>
+                                <th scope="col" class="col">Lat_U</th>
+                                <th scope="col" class="col">Lon_U</th>
+                                <th scope="col" class="col">N_Struttura</th>
+                                <th scope="col" class="col">Area_vacc</th>
                                 
                             </tr>
                         </thead>
@@ -110,12 +77,19 @@
                                 <td class="col-3">{{row[1]}}</td>
                                 <td class="col-3">{{row[2]}}</td>
                                 <td class="col-3">{{row[3]}}</td>
+                                <td class="col-3">{{row[4]}}</td>
+                                <td class="col-3">{{row[5]}}</td>
+                                <td class="col-3">{{row[6]}}</td>
+                                <td class="col-3">{{row[7]}}</td>
                                 
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
-                </div>
+
+                  </div>
+                  <p class="text-center"><a href="/login" style="text-decoration: none;">Torna al login</a></p>
+               
             </div>
         </div>
     </div>
