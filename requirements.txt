@@ -7,7 +7,6 @@ importlib-metadata
 ipykernel 
 ipython 
 Jinja2
-pyodbc
 jsonschema 
 matplotlib 
 numpy 

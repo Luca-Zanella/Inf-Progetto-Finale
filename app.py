@@ -7,8 +7,8 @@ import geopandas
 from shapely.geometry import Point
 from datetime import datetime
 import json
-#import pymssql as py
-import pyodbc as py
+import pymssql as py
+#import pyodbc as py
 
 
   
@@ -26,8 +26,8 @@ password = "xxx123##"
 
 
 #connessione normale per far si che si possa connettere il server
-conn = py.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password) 
-#conn = py.connect(server,username,password,database)
+#conn = py.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password) 
+conn = py.connect(server,username,password,database)
 
 @app.route("/")
 #sulla pagina /login si fa metodo get post per passare le informazioni da html a python, in questo caso bisogna usare il post
@@ -45,7 +45,7 @@ def login():
         cursor = conn.cursor()
         #query che dice username e la password assegnati prima andranni ad essere assegnati ai specifici campi username e password
         #-----
-        cursor.execute('SELECT * FROM accounts WHERE username =? AND password = ?', (username, password, ))
+        cursor.execute('SELECT * FROM accounts WHERE username =%s AND password = %s', (username, password, ))
         account = cursor.fetchone()
         if account:
             #se il login è riouscto 
@@ -65,11 +65,11 @@ def login():
             df_time_iniziale = datetime.now().strftime("%H:%M:%S")
             
             #per far vedere quale html voglio usare o voglio far vedere ----
-            cursor.execute('INSERT INTO dbo.prova_log (data,tempo_iniziale,ID_UTENTE) VALUES (?,?,?)', (df_data_log,df_time_iniziale,session['id']))
+            cursor.execute('INSERT INTO dbo.prova_log (data,tempo_iniziale,ID_UTENTE) VALUES (%s,%s,%s)', (df_data_log,df_time_iniziale,session['id']))
 
             conn.commit()
 
-            cursor.execute('SELECT TOP 1 * FROM dbo.prova_log WHERE ID_UTENTE = (?) ORDER BY data DESC,tempo_iniziale DESC' , (session['id']))
+            cursor.execute('SELECT TOP 1 * FROM dbo.prova_log WHERE ID_UTENTE = (%s) ORDER BY data DESC,tempo_iniziale DESC' , (session['id']))
             global id_prova_log
             id_prova_log = cursor.fetchone()
             print("id del log: " ,id_prova_log[0])
@@ -105,7 +105,7 @@ def login_amministrator():
         #creaiamo un cursore che andrà a ascalare tutto quello che gli diciamo come un cursore vero
         cursor = conn.cursor()
         #query che dice username e la password assegnati prima andranni ad essere assegnati ai specifici campi username e password
-        cursor.execute('SELECT * FROM dbo.amministrator WHERE username = ? AND password = ?', (username, password, ))
+        cursor.execute('SELECT * FROM dbo.amministrator WHERE username = %s AND password = %s', (username, password, ))
         account = cursor.fetchone()
         if account:
             #se il login è riouscto 
@@ -159,7 +159,7 @@ def index():
         print(lat,lon)
 
 
-        cursor.execute('UPDATE dbo.prova_log  SET lat_utente = (?),lon_utente = (?) WHERE ID = (?)',(lat,lon,id_prova_log[0]))
+        cursor.execute('UPDATE dbo.prova_log  SET lat_utente = (%s),lon_utente = (%s) WHERE ID = (%s)',(lat,lon,id_prova_log[0]))
         conn.commit()
 
         #posizione serve per passare le coordinate a js per fa uscire il marker verde che saremmo il device
@@ -201,10 +201,10 @@ def index():
             information = json.loads(information)
             lat,lon = information['lat'],information['lng'] 
             #print(lat,lon)
-            cursor.execute('SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini WHERE lat = (?) AND lng = (?) ',(lat,lon))
+            cursor.execute('SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini WHERE lat = (%S) AND lng = (%s) ',(lat,lon))
             id_punto = cursor.fetchone()
             #id_punto = int(id_punto)
-            cursor.execute('INSERT INTO dbo.Select_utente (ID_LOG,ID_PUNTO_VACCINALE) VALUES (?,?) ',(int(id_prova_log[0]),int(id_punto[0])))
+            cursor.execute('INSERT INTO dbo.Select_utente (ID_LOG,ID_PUNTO_VACCINALE) VALUES (%s,%s) ',(int(id_prova_log[0]),int(id_punto[0])))
             conn.commit()
             print("riuscita")
 
@@ -221,7 +221,7 @@ def index():
 def logout():
     cursor = conn.cursor()
     df_tempo_finale = datetime.now().strftime("%H:%M:%S")
-    cursor.execute('UPDATE dbo.prova_log  SET tempo_finale = (?) WHERE ID_UTENTE = (?) AND data = (?) AND tempo_iniziale = (?)',(df_tempo_finale,session['id'],df_data_log,df_time_iniziale))
+    cursor.execute('UPDATE dbo.prova_log  SET tempo_finale = (%s) WHERE ID_UTENTE = (%s) AND data = (%s) AND tempo_iniziale = (%s)',(df_tempo_finale,session['id'],df_data_log,df_time_iniziale))
     conn.commit()
 
 
@@ -285,7 +285,7 @@ def register():
         #si crea un cursore per scorrere come prima
         cursor = conn.cursor()
         #quan prendo l'username per fare un match che non esista già
-        cursor.execute('SELECT * FROM accounts WHERE username = ?', (username, ))
+        cursor.execute('SELECT * FROM accounts WHERE username = %s', (username, ))
         account = cursor.fetchone()
         if account:
             msg = 'Account already exists !'
@@ -300,7 +300,7 @@ def register():
             msg = 'Please fill out the form !'
         else:
             #in caso vada tutto bene quello che mette l'utente si inseriscono dentro i campi username password ed email i valori messi dall'utente per registrarsi
-            cursor.execute('INSERT INTO accounts (username,password,email) VALUES (?, ?, ?)', (username, password, email, ))
+            cursor.execute('INSERT INTO accounts (username,password,email) VALUES (%s, %s, %s)', (username, password, email, ))
             #commito perchè se non sql viene bloccato dal programma e continua ad eseguire così come funziona github
             conn.commit()
             #messaggio di successo
