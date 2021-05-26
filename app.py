@@ -69,10 +69,7 @@ def login():
 
             conn.commit()
 
-            cursor.execute('SELECT TOP 1 * FROM dbo.prova_log WHERE ID_UTENTE = (%s) ORDER BY data DESC,tempo_iniziale DESC' , (session['id']))
-            global id_prova_log
-            id_prova_log = cursor.fetchone()
-            print("id del log: " ,id_prova_log[0])
+            
 
 
 
@@ -82,8 +79,8 @@ def login():
             #return render_template('index.html', msg = msg)
 
             #questo permette di fare il redirect url_for ad una pagna https perchè di standard l'url for lo fa ad una pagina http
-            return redirect(url_for("cookie",_external=True,_scheme='https'))
-            #return redirect(url_for("cookie"))
+            #return redirect(url_for("cookie",_external=True,_scheme='https'))
+            return redirect(url_for("cookie"))
 
         else:
             #caso contrario messaggio normale di errore e passa anche questo per farlo vedere su html solo se vogliamo mettere online il sito
@@ -144,74 +141,77 @@ def cookie():
 def index():
 
    # try:
-        cursor = conn.cursor()
+    cursor = conn.cursor()
+    cursor.execute('SELECT TOP 1 * FROM dbo.prova_log WHERE ID_UTENTE = (%s) ORDER BY data DESC,tempo_iniziale DESC' , (session['id']))
+    id_prova_log = cursor.fetchone()
+    print("id del log: " ,id_prova_log[0])
+    
+
+    #richiesta della tabella a sql server
+    query_somm_vacc = 'SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini'
+    somm_vacc = pd.read_sql_query(query_somm_vacc,conn) 
+
+    #richiesta del cookie creato in cookie.html
+    coord = request.cookies.get('coord')
+    lat = float(coord.split(":")[0])
+    lon = float(coord.split(":")[1])
+
+    print(lat,lon)
+
+
+    cursor.execute('UPDATE dbo.prova_log  SET lat_utente = (%s),lon_utente = (%s) WHERE ID = (%s)',(lat,lon,id_prova_log[0]))
+    conn.commit()
+
+    #posizione serve per passare le coordinate a js per fa uscire il marker verde che saremmo il device
+    posizione = [lat,lon]
+
+    #creazione el punto dell'utente per calcolare i centri vaccinali in un raggio di 4 km
+    punto_utente = Point([lat,lon][::-1])
+    punto = geopandas.GeoSeries([punto_utente], crs='EPSG:4326').to_crs(epsg=3857)
+    #creazione del buffer
+    dimensione = 4000
+    buffer = punto.buffer(dimensione)
+    somm_vacc = geopandas.GeoDataFrame(somm_vacc,geometry=geopandas.points_from_xy(somm_vacc["lng"],somm_vacc["lat"]),crs=4326)
+    #somm_vacc.crs = 'epsg:4326'
+
+    somm_vacc = somm_vacc.to_crs(epsg=3857)
+    buffer = buffer.to_crs(epsg=3857)
+
+    #i centri vaccinali che sono all'interno del buffer
+    vacc = somm_vacc[somm_vacc.geometry.within(buffer.geometry.squeeze())]
+    coordiante = np.array(vacc[['lat','lng','denominazione_struttura']])
+    #print(coordiante)
+
+    #creazione dell'array così che javascript possa capirlo senza che nessuno debba decodare niente
+    result = ""
+    for cord in coordiante:
+        result += "[" + str(cord[1]) + "," + str(cord[0]) + ","  + '"'  + str(cord[2]) + '"' + "],"
+
+#la lunghezza di result - l'ultimo carattere che è la virgola che non mi serve più le quadre è per l'array muldidimansionale
+    result = "[" + result[0:len(result) -1] + "]"
+
+
+    information = request.data.decode('utf-8')
+    #print("*" + information + "*")
+
+    if information != "":
         
-
-        #richiesta della tabella a sql server
-        query_somm_vacc = 'SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini'
-        somm_vacc = pd.read_sql_query(query_somm_vacc,conn) 
-
-        #richiesta del cookie creato in cookie.html
-        coord = request.cookies.get('coord')
-        lat = float(coord.split(":")[0])
-        lon = float(coord.split(":")[1])
-
+        
+        information = information
+        information = json.loads(information)
+        lat,lon = information['lat'],information['lng'] 
         print(lat,lon)
-
-
-        cursor.execute('UPDATE dbo.prova_log  SET lat_utente = (%s),lon_utente = (%s) WHERE ID = (%s)',(lat,lon,id_prova_log[0]))
+        cursor.execute('SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini WHERE lat = (%s) AND lng = (%s) ',(lat,lon))
+        id_punto = cursor.fetchone()
+        #id_punto = int(id_punto)
+        cursor.execute('INSERT INTO dbo.Select_utente (ID_LOG,ID_PUNTO_VACCINALE) VALUES (%s,%s) ',(int(id_prova_log[0]),int(id_punto[0])))
         conn.commit()
+        print("riuscita")
 
-        #posizione serve per passare le coordinate a js per fa uscire il marker verde che saremmo il device
-        posizione = [lat,lon]
-
-        #creazione el punto dell'utente per calcolare i centri vaccinali in un raggio di 4 km
-        punto_utente = Point([lat,lon][::-1])
-        punto = geopandas.GeoSeries([punto_utente], crs='EPSG:4326').to_crs(epsg=3857)
-        #creazione del buffer
-        dimensione = 4000
-        buffer = punto.buffer(dimensione)
-        somm_vacc = geopandas.GeoDataFrame(somm_vacc,geometry=geopandas.points_from_xy(somm_vacc["lng"],somm_vacc["lat"]),crs=4326)
-        #somm_vacc.crs = 'epsg:4326'
-
-        somm_vacc = somm_vacc.to_crs(epsg=3857)
-        buffer = buffer.to_crs(epsg=3857)
-
-        #i centri vaccinali che sono all'interno del buffer
-        vacc = somm_vacc[somm_vacc.geometry.within(buffer.geometry.squeeze())]
-        coordiante = np.array(vacc[['lat','lng','denominazione_struttura']])
-        #print(coordiante)
-
-        #creazione dell'array così che javascript possa capirlo senza che nessuno debba decodare niente
-        result = ""
-        for cord in coordiante:
-            result += "[" + str(cord[1]) + "," + str(cord[0]) + ","  + '"'  + str(cord[2]) + '"' + "],"
-
-    #la lunghezza di result - l'ultimo carattere che è la virgola che non mi serve più le quadre è per l'array muldidimansionale
-        result = "[" + result[0:len(result) -1] + "]"
+    
 
 
-        information = request.data.decode('utf-8')
-        #print("*" + information + "*")
-
-        if information != "":
-            
-            
-            information = information
-            information = json.loads(information)
-            lat,lon = information['lat'],information['lng'] 
-            #print(lat,lon)
-            cursor.execute('SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini WHERE lat = (%S) AND lng = (%s) ',(lat,lon))
-            id_punto = cursor.fetchone()
-            #id_punto = int(id_punto)
-            cursor.execute('INSERT INTO dbo.Select_utente (ID_LOG,ID_PUNTO_VACCINALE) VALUES (%s,%s) ',(int(id_prova_log[0]),int(id_punto[0])))
-            conn.commit()
-            print("riuscita")
-
-        
-
-
-        return render_template("index.html" , posizione = posizione, x = result,dimensione = dimensione)
+    return render_template("index.html" , posizione = posizione, x = result,dimensione = dimensione)
 
     #except:
 
@@ -229,8 +229,8 @@ def logout():
     session.pop('loggedin', None)
     session.pop('id', None)
     session.pop('username', None)
-    return redirect(url_for('login',_external=True,_scheme='https'))
-    #return redirect(url_for('login'))
+    #return redirect(url_for('login',_external=True,_scheme='https'))
+    return redirect(url_for('login'))
     
 
 @app.route("/graph")
@@ -311,4 +311,6 @@ def register():
         #qui faccio come prima per login.html ma con una pagina register
     return render_template('register.html', msg = msg)
 
-
+if __name__ == '__main__':
+    
+    app.run(debug=True)
