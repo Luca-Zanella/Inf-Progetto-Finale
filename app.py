@@ -70,10 +70,7 @@ def login():
 
             conn.commit()
 
-            global id_prova_log
-            cursor.execute('SELECT TOP 1 * FROM dbo.prova_log WHERE ID_UTENTE = (%s) ORDER BY data DESC,tempo_iniziale DESC' , (session['id']))
-            id_prova_log = cursor.fetchone()
-            print("id del log: " ,id_prova_log[0])
+            
 
             
 
@@ -148,6 +145,11 @@ def index():
 
    # try:
     cursor = conn.cursor()
+
+    #global id_prova_log
+    cursor.execute('SELECT TOP 1 * FROM dbo.prova_log WHERE ID_UTENTE = (%s) ORDER BY data DESC,tempo_iniziale DESC' , (session['id']))
+    id_prova_log = cursor.fetchone()
+    print("id del log: " ,id_prova_log[0])
     
     
 
