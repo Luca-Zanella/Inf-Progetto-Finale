@@ -316,6 +316,7 @@ def register():
         msg = 'Please fill out the form !'
         #qui faccio come prima per login.html ma con una pagina register
     return render_template('register.html', msg = msg)
+    
 """
 if __name__ == '__main__':
     
