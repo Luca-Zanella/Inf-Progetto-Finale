@@ -29,6 +29,7 @@ password = "xxx123##"
 #conn = py.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password) 
 conn = py.connect(server,username,password,database)
 
+
 @app.route("/")
 #sulla pagina /login si fa metodo get post per passare le informazioni da html a python, in questo caso bisogna usare il post
 @app.route('/login', methods =['GET', 'POST'])
@@ -69,6 +70,11 @@ def login():
 
             conn.commit()
 
+            global id_prova_log
+            cursor.execute('SELECT TOP 1 * FROM dbo.prova_log WHERE ID_UTENTE = (%s) ORDER BY data DESC,tempo_iniziale DESC' , (session['id']))
+            id_prova_log = cursor.fetchone()
+            print("id del log: " ,id_prova_log[0])
+
             
 
 
@@ -79,8 +85,8 @@ def login():
             #return render_template('index.html', msg = msg)
 
             #questo permette di fare il redirect url_for ad una pagna https perchè di standard l'url for lo fa ad una pagina http
-            return redirect(url_for("cookie",_external=True,_scheme='https'))
-            #return redirect(url_for("cookie"))
+            #return redirect(url_for("cookie",_external=True,_scheme='https'))
+            return redirect(url_for("cookie"))
 
         else:
             #caso contrario messaggio normale di errore e passa anche questo per farlo vedere su html solo se vogliamo mettere online il sito
@@ -142,9 +148,7 @@ def index():
 
    # try:
     cursor = conn.cursor()
-    cursor.execute('SELECT TOP 1 * FROM dbo.prova_log WHERE ID_UTENTE = (%s) ORDER BY data DESC,tempo_iniziale DESC' , (session['id']))
-    id_prova_log = cursor.fetchone()
-    print("id del log: " ,id_prova_log[0])
+    
     
 
     #richiesta della tabella a sql server
@@ -229,8 +233,8 @@ def logout():
     session.pop('loggedin', None)
     session.pop('id', None)
     session.pop('username', None)
-    return redirect(url_for('login',_external=True,_scheme='https'))
-    #return redirect(url_for('login'))
+    #return redirect(url_for('login',_external=True,_scheme='https'))
+    return redirect(url_for('login'))
     
 
 @app.route("/graph")
