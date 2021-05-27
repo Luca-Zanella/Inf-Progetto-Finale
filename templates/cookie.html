@@ -15,51 +15,20 @@
 
       $(window).on("load", function () {
         console.log("window loaded");
-        
-        
         getLocation()
         
       });
     </script>
-			<!--
-<button onclick="getLocation()">Try It</button>
--->
-			<!--
- <p id="lat"></p><p id="lon"></p><p>{{lat}}</p><p>{{lon}}</p>
-  -->
 			<script>
       var lat = document.getElementById("lat");
       var lon = document.getElementById("lon");
-      //var name = "coord="
-      /*
-      var d = new Date();
-      d.setTime(d.getTime() + (exdays*24*60*60*1000));
-      var expires = "expires="+ d.toUTCString();
-      */
-
-      
-
-      //location.reload("/login")
-
-     
-      
-
       function getLocation() {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(showPosition);
         }
       }
-
       function showPosition(position) {
-        /*lat.innerHTML = "Latitude: " + position.coords.latitude;
-        lon.innerHTML = "Longitude: " + position.coords.longitude;
-        */
-
-        
-
-        
-
-       //document.cookie = name + ";expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        //cookie per chiedergli la posizione e riceverla tramite il nome nell'index
         document.cookie =
           'coord='  +   position.coords.latitude + ":" + position.coords.longitude;
         

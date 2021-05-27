@@ -6,46 +6,28 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-    crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-    crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-    crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
   <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
-  <title>Graph Example</title>
-
+  <title>Graph Covid 19</title>
 </head>
-
 <body class="gg">
 
+  <!--Semplice float navbar in bootstrap 4-->
   <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
     <a class="navbar-brand" href="#"><img src="../static/logo/logo_small.png" alt="" class="img pb-1" height="30px"></a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-toggle="collapse"
-      data-target="#navbarCollapse"
-      aria-controls="navbarCollapse"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
+    <button class="navbar-toggler"type="button"data-toggle="collapse"data-target="#navbarCollapse"aria-controls="navbarCollapse"aria-expanded="false"aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <a class="nav-link" href="/index"
-            >Mappa</a
-          >
+          <a class="nav-link" href="/index">Mappa</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/graph">Grafici</a>
@@ -53,11 +35,11 @@
         <li class="nav-item">
           <a class="nav-link" href="/logout">Logout</a>
         </li>
-        
       </ul>   
     </div>
   </nav>
 
+  <!--Qui avviene lo show dei vari grafici canvas con chart.js-->
   <div class="container mt-5 pt-5">
     <div class="row">
       <div class="col-md-12 text-center mb-5 ">
@@ -85,11 +67,16 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
   <script>
+    //andiamo ad assegnare ad ogni grafico in id prendendolo sappiamo con quale grafico stiamo lavorando in 2d
     var ctx_chart_pd = document.getElementById('chart_pd').getContext('2d');
     var ctx_myChart = document.getElementById('myChart').getContext('2d');
     var chart_fornitore = document.getElementById('chart_fornitore').getContext('2d');
     var chart_somministrazioni = document.getElementById('chart_somministrazioni').getContext('2d')
 
+    //prendiamo dati da python e li mettiamo nel posto giusto sempre con | safe per far si che javascript non tocca quei data
+    //gli errori che vengono dati non sono un problema è solo javascript che non gli piace questo passaggio è da errore
+
+    //punti vaccinali per regioni
     var chart = new Chart(ctx_myChart, {
       type: 'bar',
       data: {
@@ -107,6 +94,7 @@
     }
   });
 
+    //confronto tra uomini e donne
     const labels_aree = {{ area | safe}};
     const data_maschi_femmine = {
       labels: labels_aree,
@@ -132,6 +120,7 @@
       }
     });
 
+    //vaccine per fornitore
     const labels_fornitori = {{ fornitore | safe}}
     const data_tot_fornitori = {
       labels: labels_fornitori,
@@ -158,7 +147,7 @@
       }
     });
 
-
+    //dosi per utilizzi
     const labels_dosi_somministrazione = {{ area_dosi | safe}}
     const data_dosi_somministrazioni = {
       labels: labels_dosi_somministrazione,
@@ -175,7 +164,7 @@
         }
       ]
     }
-
+  
     var chart = new Chart(chart_somministrazioni, {
       type: 'bar',
       data: data_dosi_somministrazioni,
@@ -202,7 +191,7 @@
           }]
         },
         responsive: true,
-        maintainAspectRatio: false,
+        maintainAspectRatio: true,
         legend: { position: 'top' },
       }
     });

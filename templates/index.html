@@ -12,35 +12,22 @@
     <link rel="stylesheet"href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css"/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"/>
     <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/navbar-top-fixed/"/>
-
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}"/>
-
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
-
   <body>
 
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
       <a class="navbar-brand" href="#"><img src="../static/logo/logo_small.png" alt="" class="img pb-1" height="30px"></a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarCollapse"
-        aria-controls="navbarCollapse"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
+      <button class="navbar-toggler"type="button"data-toggle="collapse"data-target="#navbarCollapse"aria-controls="navbarCollapse"aria-expanded="false"aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href="/index"
-              >Mappa</a
-            >
+            <a class="nav-link" href="/index">Mappa</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/graph">Grafici</a>
@@ -52,7 +39,6 @@
         </ul>   
       </div>
     </nav>
-
     <style>
       body {
         padding: 0;
@@ -63,24 +49,23 @@
       body,
       #map {
         height: 100%;
-        /*width: 100%;*/
       }
     </style>
     <div id="map"></div>
     <script src="https://d19vzq90twjlae.cloudfront.net/leaflet-0.7/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
-
-
     <script>
-
+    
       var routingControl;
       var map;
       var lastRoute = null;
       var i = 0;
       var gg = 0;
       var x;
-
+      
+      //questa icona serve soltanto perchè quando si preme su un marker per l'indicazione da un altro marker ne crea altri 2 sopra gli stessi, facendoli diventare trasparenti non ci si accorge di quello che succede
+      //se si vuole fare in un altro monfo basta cambiare le icone che vengono messo con iconSize[0,0]
       var icontrasparente = new L.Icon({
         iconUrl: '../static/icona-trasparente.png',
         //shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -89,9 +74,6 @@
         popupAnchor: [1, -34],
         shadowSize: [41, 41]
       });
-
-
-
       var iconacasa = new L.Icon({
         iconUrl: '../static/mansion.png',
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -100,7 +82,6 @@
         popupAnchor: [1, -34],
         shadowSize: [41, 41]
       });
-
       var iconacentrivaccinali = new L.icon({
         iconUrl: '../static/siringa.png',
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -109,8 +90,7 @@
         popupAnchor: [1, -34],
         shadowSize: [41, 41]
       })
-
-
+      //creiamo la mappa e mettiamo come punto di vista iniziale la casa dell'utente
       map = L.map("map").setView([{{ posizione[0]}}, {{posizione[1]}}], 13);
       mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
       L.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -118,19 +98,20 @@
         //maxZoom: 20,
       }).addTo(map);
 
+      //zoom in e zoom out viene spostato a causa della float navbar così da rendere tutto più facile
       $(".leaflet-control-zoom").css("visibility", "hidden");
       new L.Control.Zoom({ position: 'topleft' }).addTo(map);
 
 
       //bisogna dire che quello che si sta passando non bisogna toccarlo ma bisogna lasciarlo così com'è
       var planes = {{ x | safe}};
-
+      //andiamo a ciclare i nostri punti vaccinali sulla mappa con dei marker ed icona e quando si preme sopra non solo scatta la funzione onClick ma esce anche la denominazione struttura come popUp
       for (i; i < planes.length; i++) {
-
         marker = new L.marker([planes[i][1], planes[i][0]], { icon: iconacentrivaccinali }).on('click', onClick).bindPopup(planes[i][2]).addTo(map);
-
       }
+      //permette dalla posizione dell'utente di fare una rotta verso il punto vaccinale dove preme l'utente
       function onClick(e) {
+        //questo serve per eliminare la rotta precedente in caso si prema su un altro centro vaccinale
         if (lastRoute != null) {
           map.removeControl(lastRoute);
           lastRoute = null;
@@ -141,35 +122,44 @@
       //alert(this.getLatLng());
       routingControl = L.Routing.control({
         waypoints: [
+          //parte da lat,lon che sono le coordinate dell'utente
           L.latLng(lat, lon),
+          //ed arriva fino a dove preme l'utente (può premere solo sun un marker centro vaccinale anche perchè on click e su di loro)-> getLatLng prende le coordinate di quel punto vaccinale e crea la rotta
           x = L.latLng(this.getLatLng()),
 
         ],
         routeWhileDragging: true,
+        //fa uscire le indicazione e le mette in italiano
         position: "bottomright",
         language: 'it',
         lineOptions: {
+          // a piacere
           styles: [{ color: "orange", opacity: 1, weight: 5 }]
         },
         createMarker: function (i, wp, nWps) {
+          //questo per far si che i punti che verranno creati siano invisibili così che l'utente non si accrogi di nulla
           return L.marker(wp.latLng, { icon: icontrasparente });
         },
       }).addTo(map);
       lastRoute = routingControl
-             //document.cookie = "info=" + planes[i]
 
+        //per far si che quello che premiamo ci arrivi nell'index in python con XMLHttprequest
         const URL = '/index'
         const xhr = new XMLHttpRequest();
+        //x l'andiamo ad assegnare globalmente in js e l'assegnamo a getLatLng nei waypoints
         sender = JSON.stringify(x)
         xhr.open('POST', URL);
+        //la mandiamo all'url
         xhr.send(sender);
  
       }
 
-
+      //creiamo il marker della nostra posizione
       L.marker([{{ posizione[0]}}, {{ posizione[1]}}], { icon: iconacasa }).addTo(map);
+      //creiamo il buffer dal nostro punto (posizione utente) e mettiamo la dimensione di python del buffer
       var circle = L.circle([{{ posizione[0]}}, {{posizione[1]}}], {
         radius: {{ dimensione }},
+        //a piacere
         weight: 3,
         stroke: true,
         color: "black",
