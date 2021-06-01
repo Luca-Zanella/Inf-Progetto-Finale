@@ -12,7 +12,7 @@ import pymssql as py
 app = Flask(__name__)
 app.secret_key = 'super secret key'
 
-server = "192.168.40.16"
+server = "213.140.22.237\SQLEXPRESS"
 database = "zanella.luca"
 username = "zanella.luca"
 password = "xxx123##"
