@@ -107,7 +107,7 @@ def graph_accounts_amministrator():
 FROM dbo.accounts
 INNER JOIN dbo.prova_log ON dbo.accounts.id = dbo.prova_log.ID_UTENTE
 INNER JOIN dbo.Select_utente ON dbo.prova_log.ID = dbo.Select_utente.ID_LOG
-INNER JOIN dbo.ProvapuntiSomministrazioneVaccini ON dbo.Select_utente.ID_PUNTO_VACCINALE = dbo.ProvapuntiSomministrazioneVaccini.Column_1
+INNER JOIN dbo.ProvapuntiSomministrazioneVaccini ON dbo.Select_utente.ID_PUNTO_VACCINALE = dbo.ProvapuntiSomministrazioneVaccini.id
 """)
     data = cursor.fetchall()
 
