@@ -280,7 +280,8 @@ def register():
     return render_template('register.html', msg = msg)
 
 #questo serve per far partire il sito in local e non online quindi per adesso lo si può togliere
-
+"""
 if __name__ == '__main__':
     
     app.run(debug=True)
+"""
