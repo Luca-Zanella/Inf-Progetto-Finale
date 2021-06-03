@@ -1,4 +1,4 @@
-,area,codice_NUTS1,codice_NUTS2,codice_regione_ISTAT,denominazione_struttura,lat,lng,nome_area,tipologia
+id,area,codice_NUTS1,codice_NUTS2,codice_regione_ISTAT,denominazione_struttura,lat,lon,nome_area,tipologia
 0,ABR,ITF,ITF1,13,AVEZZANO-SULMONA-L'AQUILA,42.0512567,13.9343122,Abruzzo,Ospedaliero
 1,ABR,ITF,ITF1,13,CASA DI CURA VILLA SERENA,42.5213536,14.0979546,Abruzzo,Ospedaliero
 2,ABR,ITF,ITF1,13,CDC S.CAMILLA-C.RIA.VILLA PINI,42.379116,14.1898173,Abruzzo,Territoriale

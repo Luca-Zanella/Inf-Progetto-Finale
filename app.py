@@ -1,4 +1,3 @@
-
 from flask import Flask,render_template, request, redirect, url_for, session
 import re
 import pandas as pd
@@ -12,7 +11,7 @@ import pymssql as py
 app = Flask(__name__)
 app.secret_key = 'super secret key'
 
-server = "192.168.40.16"
+server = "213.140.22.237\SQLEXPRESS"
 database = "zanella.luca"
 username = "zanella.luca"
 password = "xxx123##"
@@ -107,7 +106,7 @@ def graph_accounts_amministrator():
 FROM dbo.accounts
 INNER JOIN dbo.prova_log ON dbo.accounts.id = dbo.prova_log.ID_UTENTE
 INNER JOIN dbo.Select_utente ON dbo.prova_log.ID = dbo.Select_utente.ID_LOG
-INNER JOIN dbo.ProvapuntiSomministrazioneVaccini ON dbo.Select_utente.ID_PUNTO_VACCINALE = dbo.ProvapuntiSomministrazioneVaccini.Column_1
+INNER JOIN dbo.ProvapuntiSomministrazioneVaccini ON dbo.Select_utente.ID_PUNTO_VACCINALE = dbo.ProvapuntiSomministrazioneVaccini.id
 """)
     data = cursor.fetchall()
 
@@ -149,11 +148,11 @@ def index():
         #dimensione che sarà anche quella del circle in javascript #poi si potrà andare ad impostare dall'utente come seconda release
         dimensione = 4000
         buffer = punto.buffer(dimensione)
-        somm_vacc = geopandas.GeoDataFrame(somm_vacc,geometry=geopandas.points_from_xy(somm_vacc["lng"],somm_vacc["lat"]),crs=4326)
+        somm_vacc = geopandas.GeoDataFrame(somm_vacc,geometry=geopandas.points_from_xy(somm_vacc["lon"],somm_vacc["lat"]),crs=4326)
         somm_vacc = somm_vacc.to_crs(epsg=3857)
         buffer = buffer.to_crs(epsg=3857)
         vacc = somm_vacc[somm_vacc.geometry.within(buffer.geometry.squeeze())]
-        coordiante = np.array(vacc[['lat','lng','denominazione_struttura']])
+        coordiante = np.array(vacc[['lat','lon','denominazione_struttura']])
 
 
         #creazione dell'array così che javascript possa capirlo senza che nessuno debba decodare niente
@@ -175,16 +174,16 @@ def index():
             lat,lon = information['lat'],information['lng'] 
             print(lat,lon)
             #andiamo a scegliere le l'id del punto vaccinale in base alle coordinate che ci arrivano che sarebbero quelle del punto premuto dall'utente
-            cursor.execute('SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini WHERE lat = (%s) AND lng = (%s) ',(lat,lon))
+            cursor.execute('SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini WHERE lat = (%s) AND lon = (%s) ',(lat,lon))
             id_punto = cursor.fetchone()
             #qua andiamo ad inserire nella relazione finale l'id prova log  preso prima e id_punto preso adesso
             cursor.execute('INSERT INTO dbo.Select_utente (ID_LOG,ID_PUNTO_VACCINALE) VALUES (%s,%s) ',(int(id_prova_log[0]),int(id_punto[0])))
             conn.commit()
         return render_template("index.html" , posizione = posizione, x = result,dimensione = dimensione)
-
     except:
 
         return redirect(url_for("login"))
+   
 
 @app.route('/logout')
 def logout(): 
@@ -207,7 +206,7 @@ def graph():
     #andiamo a prendere dei dati da sql o dal github dello stato italiano ed andiamo a gestire i dati per fare dei grafici tramite chart.js
     query_graph = "SELECT * FROM dbo.ProvapuntiSomministrazioneVaccini"
     df_graph = pd.read_sql(query_graph,conn)
-    df_graph = df_graph.groupby("area").count()["Column_1"].reset_index(name="num_vacc")
+    df_graph = df_graph.groupby("area").count()["id"].reset_index(name="num_vacc")
     df_graph = np.array(df_graph[['area','num_vacc']])
 
     labels = [row[0] for row in df_graph]
@@ -281,8 +280,7 @@ def register():
     return render_template('register.html', msg = msg)
 
 #questo serve per far partire il sito in local e non online quindi per adesso lo si può togliere
-"""
+
 if __name__ == '__main__':
     
     app.run(debug=True)
-"""
