@@ -120,7 +120,7 @@ def cookie():
 @app.route("/index",methods=["GET","POST"])
 def index():
     #try exept così ad ogni errore torna al login in caso qualcuno provi ad entrare senza loggarsi
-    
+    try:
         cursor = conn.cursor()
 
         #andiamo a prendere l'id del log in base all'ultima vota che quell'utente è entrato
@@ -181,7 +181,9 @@ def index():
             cursor.execute('INSERT INTO dbo.Select_utente (ID_LOG,ID_PUNTO_VACCINALE) VALUES (%s,%s) ',(int(id_prova_log[0]),int(id_punto[0])))
             conn.commit()
         return render_template("index.html" , posizione = posizione, x = result,dimensione = dimensione)
+    except:
 
+        return redirect(url_for("login"))
    
 
 @app.route('/logout')
